@@ -41,7 +41,6 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
     if (rows.length === 0) continue;
 
     parts.push(`<p style="${FONT}"><b>${esc(team)}</b></p>`);
-    parts.push(`<p style="${FONT}">&nbsp;</p>`);
     parts.push(`<table ${TABLE_STYLE}>`);
     parts.push(
       `<tr><th style="${FONT}background:#f2f2f2;font-weight:bold">Services</th><th style="${FONT}background:#f2f2f2;font-weight:bold">Programme</th><th style="${FONT}background:#f2f2f2;font-weight:bold">Action Required</th></tr>`
