@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import type { RosterPerson, WeeklyPlan } from "../types";
 import { blankPlan } from "../types";
+import { applyDefaultTemplate } from "../defaultTemplate";
 import SegmentsEditor from "./SegmentsEditor";
 import RehearsalEditor from "./RehearsalEditor";
 import CallTimesEditor from "./CallTimesEditor";
@@ -43,6 +44,14 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
   const emailHtml = useMemo(() => buildEmailHtml(plan), [plan]);
   const recipientsString = useMemo(() => buildRecipientsString(plan, roster), [plan, roster]);
   const pastorSummary = useMemo(() => buildPastorSummary(plan), [plan]);
+
+  function handleLoadDefault() {
+    const hasContent = plan.segments.length > 0 || plan.rehearsal.length > 0 || plan.callTimes.length > 0;
+    if (hasContent && !confirm("This replaces the order of service, rehearsal schedule, call times, and teams with the standard template. Sermon title, speaker, and recipients are kept. Continue?")) {
+      return;
+    }
+    onChange(applyDefaultTemplate(plan));
+  }
 
   async function handleCopyEmail() {
     try {
@@ -99,6 +108,10 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
               ))}
             </select>
           </label>
+          <label>
+            &nbsp;
+            <button type="button" onClick={handleLoadDefault}>Load default program</button>
+          </label>
         </div>
       </div>
 
@@ -112,6 +125,10 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
           <label>
             Team greeting name (email "Hi ___,")
             <input value={plan.teamGreetingName} onChange={(e) => set("teamGreetingName", e.target.value)} />
+          </label>
+          <label>
+            Service time (shown in email's "Services" column)
+            <input type="time" value={plan.serviceClockTime} onChange={(e) => set("serviceClockTime", e.target.value)} />
           </label>
           <label className="inline-check">
             <input type="checkbox" checked={plan.holyCommunion} onChange={(e) => set("holyCommunion", e.target.checked)} />

@@ -16,6 +16,12 @@ export function displayTime(hhmm: string): string {
   return `${parseInt(h, 10)}:${m}`;
 }
 
+// "07:00" -> "7:00 AM", "13:30" -> "1:30 PM"
+export function displayTimeWithMeridiem(hhmm: string): string {
+  const h = parseInt(hhmm.split(":")[0], 10);
+  return `${displayTime(hhmm)} ${h < 12 ? "AM" : "PM"}`;
+}
+
 // Duration in minutes -> "H:MM" (e.g. 20 -> "0:20", 65 -> "1:05")
 export function formatDuration(min: number): string {
   const h = Math.floor(min / 60);

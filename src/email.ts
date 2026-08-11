@@ -1,5 +1,5 @@
 import type { RosterPerson, WeeklyPlan } from "./types";
-import { chainTimes, displayTime } from "./utils/time";
+import { chainTimes, displayTimeWithMeridiem } from "./utils/time";
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -9,7 +9,7 @@ const TABLE_STYLE = 'border="1" cellspacing="0" cellpadding="6" style="border-co
 
 export function buildEmailHtml(plan: WeeklyPlan): string {
   const { times: segTimes } = chainTimes(plan.startTime, plan.segments);
-  const startLabel = `${displayTime(plan.startTime)}${parseInt(plan.startTime.split(":")[0], 10) < 12 ? "AM" : "PM"}`;
+  const startLabel = displayTimeWithMeridiem(plan.serviceClockTime || plan.startTime).replace(" ", "");
 
   const parts: string[] = [];
   parts.push(`<p>Hi ${esc(plan.teamGreetingName)},</p>`);
@@ -57,7 +57,7 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
   if (plan.callTimes.length > 0) {
     parts.push(`<p><b>${esc(plan.serviceName.split(" ")[0])} ${esc(plan.teamGreetingName)}:</b></p>`);
     for (const ct of plan.callTimes) {
-      parts.push(`<p><span style="color:red;font-weight:bold">${esc(displayTime(ct.time))}</span>&nbsp;&nbsp;${esc(ct.label)}</p>`);
+      parts.push(`<p><span style="color:red;font-weight:bold">${esc(displayTimeWithMeridiem(ct.time))}</span>&nbsp;&nbsp;${esc(ct.label)}</p>`);
     }
     parts.push(`<p>&nbsp;</p>`);
   }
