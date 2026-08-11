@@ -97,5 +97,6 @@ export function applyDefaultTemplate(plan: WeeklyPlan): WeeklyPlan {
     rehearsal: defaultRehearsal(),
     callTimes: defaultCallTimes(),
     teams: [...DEFAULT_TEAMS_FULL],
+    holyCommunion: true,
   };
 }

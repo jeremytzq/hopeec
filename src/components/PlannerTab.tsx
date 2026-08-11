@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
-import type { RosterPerson, WeeklyPlan } from "../types";
-import { blankPlan } from "../types";
+import type { RosterPerson, Segment, WeeklyPlan } from "../types";
+import { blankPlan, uid } from "../types";
 import { applyDefaultTemplate } from "../defaultTemplate";
 import SegmentsEditor from "./SegmentsEditor";
 import RehearsalEditor from "./RehearsalEditor";
@@ -22,9 +22,24 @@ type Props = {
 
 export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDate, onDuplicateFrom }: Props) {
   const [copyStatus, setCopyStatus] = useState("");
+  const [newTeam, setNewTeam] = useState("");
 
   function set<K extends keyof WeeklyPlan>(key: K, value: WeeklyPlan[K]) {
     onChange({ ...plan, [key]: value });
+  }
+
+  function addTeam() {
+    const name = newTeam.trim();
+    if (!name || plan.teams.includes(name)) return;
+    set("teams", [...plan.teams, name]);
+    setNewTeam("");
+  }
+
+  function removeTeam(team: string) {
+    set(
+      "teams",
+      plan.teams.filter((t) => t !== team)
+    );
   }
 
   const emailHtml = useMemo(() => buildEmailHtml(plan), [plan]);
@@ -37,6 +52,32 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
       return;
     }
     onChange(applyDefaultTemplate(plan));
+  }
+
+  function handleHolyCommunionChange(checked: boolean) {
+    const isHc = (program: string) => program.toLowerCase().includes("holy communion");
+    const hasHc = plan.segments.some((s) => isHc(s.program));
+    let segments = plan.segments;
+
+    if (checked && !hasHc) {
+      const hcSegment: Segment = {
+        id: uid(),
+        program: "Holy Communion (Live)",
+        durationMin: 2,
+        assignments: [
+          { id: uid(), team: "Service Leaders", action: "To lead in Holy Communion." },
+          { id: uid(), team: "SM and MM Teams", action: "" },
+        ],
+      };
+      const closeWorshipIdx = segments.findIndex((s) => s.program.toLowerCase().includes("close worship"));
+      const welcomeIdx = segments.findIndex((s) => s.program.toLowerCase().includes("welcome"));
+      const insertAt = closeWorshipIdx >= 0 ? closeWorshipIdx + 1 : welcomeIdx >= 0 ? welcomeIdx : segments.length;
+      segments = [...segments.slice(0, insertAt), hcSegment, ...segments.slice(insertAt)];
+    } else if (!checked && hasHc) {
+      segments = segments.filter((s) => !isHc(s.program));
+    }
+
+    onChange({ ...plan, holyCommunion: checked, segments });
   }
 
   async function handleCopyEmail() {
@@ -133,7 +174,7 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
             <input type="time" value={plan.serviceClockTime} onChange={(e) => set("serviceClockTime", e.target.value)} />
           </label>
           <label className="inline-check">
-            <input type="checkbox" checked={plan.holyCommunion} onChange={(e) => set("holyCommunion", e.target.checked)} />
+            <input type="checkbox" checked={plan.holyCommunion} onChange={(e) => handleHolyCommunionChange(e.target.checked)} />
             Holy Communion this week
           </label>
         </div>
@@ -157,12 +198,28 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         </label>
       </div>
 
+      <h2 className="h-teams">Teams (for the email's per-team tables)</h2>
+      <div className="editor-block">
+        <div className="row wrap">
+          {plan.teams.map((t) => (
+            <span className="chip" key={t}>
+              {t} <button type="button" className="danger small" onClick={() => removeTeam(t)}>✕</button>
+            </span>
+          ))}
+        </div>
+        <div className="row">
+          <input value={newTeam} onChange={(e) => setNewTeam(e.target.value)} placeholder="e.g. Ushering Team" />
+          <button type="button" onClick={addTeam}>+ Add team</button>
+        </div>
+      </div>
+
       <div className="two-col">
         <div>
           <h2 className="h-order">Order of service</h2>
           <SegmentsEditor
             segments={plan.segments}
             startTime={plan.startTime}
+            teams={plan.teams}
             onChange={(segments) => set("segments", segments)}
             onStartTimeChange={(t) => set("startTime", t)}
           />
