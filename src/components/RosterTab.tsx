@@ -75,7 +75,7 @@ export default function RosterTab({ roster, onChange }: Props) {
 
       <table className="simple-table">
         <thead>
-          <tr><th>Active</th><th>Name</th><th>Email</th><th>Team</th><th></th></tr>
+          <tr><th>Active</th><th>Name</th><th>Email</th><th></th></tr>
         </thead>
         <tbody>
           {roster.map((p) => (
@@ -83,7 +83,6 @@ export default function RosterTab({ roster, onChange }: Props) {
               <td><input type="checkbox" checked={p.active} onChange={(e) => update(p.id, { active: e.target.checked })} /></td>
               <td><input value={p.name} onChange={(e) => update(p.id, { name: e.target.value })} /></td>
               <td><input value={p.email} onChange={(e) => update(p.id, { email: e.target.value })} placeholder="name@example.com" /></td>
-              <td><input value={p.team} onChange={(e) => update(p.id, { team: e.target.value })} placeholder="e.g. Worship" /></td>
               <td><button type="button" className="danger small" onClick={() => remove(p.id)}>✕</button></td>
             </tr>
           ))}

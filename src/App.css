@@ -67,7 +67,6 @@ h2 {
 }
 
 h2.h-details { border-color: #64748b; color: #475569; }
-h2.h-teams { border-color: #8b5cf6; color: #6d28d9; }
 h2.h-order { border-color: #2f6fed; color: #1d4ed8; }
 h2.h-rehearsal { border-color: #ed7d31; color: #c2540a; }
 h2.h-calltimes { border-color: #16a34a; color: #15803d; }
@@ -187,16 +186,7 @@ button.link { background: none; border: none; color: var(--accent); padding: 4px
 
 .duration-cell { display: flex; align-items: center; gap: 6px; flex-wrap: nowrap; }
 
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #eef2ff;
-  color: var(--accent);
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 13px;
-}
+.recipient-search { width: 100%; margin-bottom: 10px; }
 
 .recipient-group { margin-bottom: 10px; }
 .recipient-group-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }

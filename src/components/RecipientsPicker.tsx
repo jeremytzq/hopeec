@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { RosterPerson } from "../types";
 
 type Props = {
@@ -7,6 +8,7 @@ type Props = {
 };
 
 export default function RecipientsPicker({ roster, selectedIds, onChange }: Props) {
+  const [query, setQuery] = useState("");
   const selected = new Set(selectedIds);
 
   function toggle(id: string) {
@@ -20,8 +22,11 @@ export default function RecipientsPicker({ roster, selectedIds, onChange }: Prop
     onChange(roster.filter((p) => p.active).map((p) => p.id));
   }
 
+  const q = query.trim().toLowerCase();
+  const filtered = q ? roster.filter((p) => p.name.toLowerCase().includes(q)) : roster;
+
   const byTeam = new Map<string, RosterPerson[]>();
-  for (const p of roster) {
+  for (const p of filtered) {
     const key = p.team || "(no team)";
     if (!byTeam.has(key)) byTeam.set(key, []);
     byTeam.get(key)!.push(p);
@@ -34,6 +39,13 @@ export default function RecipientsPicker({ roster, selectedIds, onChange }: Prop
         <button type="button" onClick={() => onChange([])}>Clear</button>
         <span className="muted">{selectedIds.length} selected</span>
       </div>
+      <input
+        className="recipient-search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="Search by name…"
+      />
+      {roster.length > 0 && filtered.length === 0 && <p className="muted">No one matches "{query}".</p>}
       {[...byTeam.entries()].map(([team, people]) => (
         <div key={team} className="recipient-group">
           <div className="recipient-group-title">{team}</div>

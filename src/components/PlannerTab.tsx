@@ -21,25 +21,10 @@ type Props = {
 };
 
 export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDate, onDuplicateFrom }: Props) {
-  const [newTeam, setNewTeam] = useState("");
   const [copyStatus, setCopyStatus] = useState("");
 
   function set<K extends keyof WeeklyPlan>(key: K, value: WeeklyPlan[K]) {
     onChange({ ...plan, [key]: value });
-  }
-
-  function addTeam() {
-    const name = newTeam.trim();
-    if (!name || plan.teams.includes(name)) return;
-    set("teams", [...plan.teams, name]);
-    setNewTeam("");
-  }
-
-  function removeTeam(team: string) {
-    set(
-      "teams",
-      plan.teams.filter((t) => t !== team)
-    );
   }
 
   const emailHtml = useMemo(() => buildEmailHtml(plan), [plan]);
@@ -170,21 +155,6 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
           Closing note
           <textarea rows={2} value={plan.closingNote} onChange={(e) => set("closingNote", e.target.value)} />
         </label>
-      </div>
-
-      <h2 className="h-teams">Teams (for the email's per-team tables)</h2>
-      <div className="editor-block">
-        <div className="row wrap">
-          {plan.teams.map((t) => (
-            <span className="chip" key={t}>
-              {t} <button type="button" className="danger small" onClick={() => removeTeam(t)}>✕</button>
-            </span>
-          ))}
-        </div>
-        <div className="row">
-          <input value={newTeam} onChange={(e) => setNewTeam(e.target.value)} placeholder="e.g. Ushering Team" />
-          <button type="button" onClick={addTeam}>+ Add team</button>
-        </div>
       </div>
 
       <div className="two-col">
