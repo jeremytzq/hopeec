@@ -167,9 +167,10 @@ button.link { background: none; border: none; color: var(--accent); padding: 4px
 }
 tr.dragging { opacity: 0.4; }
 tr.drag-over td { border-top: 2px solid var(--accent); }
-.row-actions { display: flex; gap: 2px; white-space: nowrap; }
+.row-actions { display: flex; align-items: center; justify-content: center; gap: 2px; white-space: nowrap; }
 .row-actions button { padding: 2px 5px; font-size: 12px; }
-.segments-table td.row-actions, .rehearsal-table td.row-actions { padding-left: 4px; padding-right: 4px; }
+.actions-cell { vertical-align: middle; }
+.segments-table td.actions-cell, .rehearsal-table td.actions-cell { padding-left: 4px; padding-right: 4px; }
 
 .duration-input {
   width: 40px;
@@ -186,7 +187,7 @@ tr.drag-over td { border-top: 2px solid var(--accent); }
 
 /* Fixed width sized to actual content needs (not stretched to fill the card) -
    Programme text is short, so it no longer soaks up 100% of the leftover space. */
-.segments-table { table-layout: fixed; width: auto; }
+.segments-table { table-layout: fixed; width: 100%; }
 .segments-table th:nth-child(1), .segments-table td:nth-child(1) { width: 56px; }
 .segments-table th:nth-child(2), .segments-table td:nth-child(2) { width: 64px; }
 .segments-table th:nth-child(3), .segments-table td:nth-child(3) { width: 320px; }

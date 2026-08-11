@@ -57,10 +57,12 @@ export default function RehearsalEditor({ items, startTime, onChange, onStartTim
                 </div>
               </td>
               <td><input value={it.program} onChange={(e) => update(it.id, { program: e.target.value })} placeholder="e.g. Soundcheck - Vocalists" /></td>
-              <td className="row-actions">
-                <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
-                <button type="button" onClick={() => move(i, 1)} disabled={i === items.length - 1}>↓</button>
-                <button type="button" className="danger small" onClick={() => remove(it.id)}>✕</button>
+              <td className="actions-cell">
+                <div className="row-actions">
+                  <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
+                  <button type="button" onClick={() => move(i, 1)} disabled={i === items.length - 1}>↓</button>
+                  <button type="button" className="danger small" onClick={() => remove(it.id)}>✕</button>
+                </div>
               </td>
             </tr>
           ))}

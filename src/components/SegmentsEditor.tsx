@@ -115,10 +115,12 @@ export default function SegmentsEditor({ segments, startTime, teams, onChange, o
                   ))}
                   <button type="button" className="link small" onClick={() => addAssignment(seg.id)}>+ assign a team</button>
                 </td>
-                <td className="row-actions">
-                  <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
-                  <button type="button" onClick={() => move(i, 1)} disabled={i === segments.length - 1}>↓</button>
-                  <button type="button" className="danger small" onClick={() => remove(seg.id)}>✕</button>
+                <td className="actions-cell">
+                  <div className="row-actions">
+                    <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
+                    <button type="button" onClick={() => move(i, 1)} disabled={i === segments.length - 1}>↓</button>
+                    <button type="button" className="danger small" onClick={() => remove(seg.id)}>✕</button>
+                  </div>
                 </td>
               </tr>
             ))}

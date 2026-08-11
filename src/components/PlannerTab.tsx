@@ -10,6 +10,7 @@ import { downloadServiceBriefPdf } from "../pdf";
 import { buildEmailHtml, buildRecipientsString, copyEmailToClipboard } from "../email";
 import { buildPastorSummary, copyToClipboardText } from "../whatsapp";
 import { copyProgramImageToClipboard, downloadProgramImage } from "../screenshot";
+import { deriveShortServiceName, formatLongDate } from "../utils/time";
 
 type Props = {
   plan: WeeklyPlan;
@@ -135,7 +136,12 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
               value={plan.date}
               onChange={(e) => {
                 const date = e.target.value;
-                onChange({ ...plan, id: date, date });
+                onChange({
+                  ...plan,
+                  id: date,
+                  date,
+                  emailSubject: `[${deriveShortServiceName(plan.serviceName)}] Service Brief for ${formatLongDate(date)}`,
+                });
               }}
             />
           </label>
@@ -244,8 +250,12 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         </div>
       </div>
 
-      <h2 className="h-calltimes">Call times</h2>
-      <CallTimesEditor items={plan.callTimes} onChange={(callTimes) => set("callTimes", callTimes)} />
+      <div className="two-col">
+        <div>
+          <h2 className="h-calltimes">Call times</h2>
+          <CallTimesEditor items={plan.callTimes} onChange={(callTimes) => set("callTimes", callTimes)} />
+        </div>
+      </div>
 
       <h2 className="h-send">Send it out</h2>
       <div className="editor-block">
