@@ -71,7 +71,7 @@ export default function SegmentsEditor({ segments, startTime, teams, onChange, o
             <th>Time</th>
             <th>Min</th>
             <th>Programme</th>
-            <th>Team assignments (for the email)</th>
+            <th>Team assignments</th>
             <th></th>
           </tr>
         </thead>

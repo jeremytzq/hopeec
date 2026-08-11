@@ -188,7 +188,7 @@ tr.drag-over td { border-top: 2px solid var(--accent); }
 .segments-table th:nth-child(1), .segments-table td:nth-child(1) { width: 40px; }
 .segments-table th:nth-child(2), .segments-table td:nth-child(2) { width: 48px; }
 .segments-table th:nth-child(3), .segments-table td:nth-child(3) { width: auto; }
-.segments-table th:nth-child(4), .segments-table td:nth-child(4) { width: 160px; }
+.segments-table th:nth-child(4), .segments-table td:nth-child(4) { width: 220px; }
 .segments-table th:nth-child(5), .segments-table td:nth-child(5) { width: 64px; }
 
 .assignment-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 4px; }
