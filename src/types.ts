@@ -8,7 +8,6 @@ export type Segment = {
   id: string;
   program: string;
   durationMin: number;
-  fixedTime?: string; // optional override, else chained from plan startTime
   assignments: TeamAssignment[];
 };
 

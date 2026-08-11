@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { RosterPerson } from "../types";
 import { uid } from "../types";
+import { parseRosterRows, type ParsedPerson } from "../csv";
 
 type Props = {
   roster: RosterPerson[];
@@ -9,6 +10,8 @@ type Props = {
 
 export default function RosterTab({ roster, onChange }: Props) {
   const [pasteText, setPasteText] = useState("");
+  const [importStatus, setImportStatus] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   function update(id: string, patch: Partial<RosterPerson>) {
     onChange(roster.map((p) => (p.id === id ? { ...p, ...patch } : p)));
@@ -20,24 +23,45 @@ export default function RosterTab({ roster, onChange }: Props) {
     onChange([...roster, { id: uid(), name: "", email: "", team: "", active: true }]);
   }
 
+  // Existing people are matched by email (case-insensitive) and updated in place
+  // rather than duplicated, so re-importing the same PCO export each week is safe.
+  function mergeImported(people: ParsedPerson[]) {
+    if (!people.length) {
+      setImportStatus("No rows recognized in that import.");
+      return;
+    }
+    let next = [...roster];
+    let added = 0;
+    let updated = 0;
+    for (const p of people) {
+      const key = p.email.trim().toLowerCase();
+      const existingIdx = key ? next.findIndex((r) => r.email.trim().toLowerCase() === key) : -1;
+      if (existingIdx >= 0) {
+        next[existingIdx] = {
+          ...next[existingIdx],
+          name: p.name || next[existingIdx].name,
+          team: p.team || next[existingIdx].team,
+        };
+        updated++;
+      } else {
+        next.push({ id: uid(), name: p.name, email: p.email, team: p.team, active: true });
+        added++;
+      }
+    }
+    onChange(next);
+    setImportStatus(`Imported: ${added} added, ${updated} updated.`);
+    setTimeout(() => setImportStatus(""), 5000);
+  }
+
   function importPasted() {
-    // Accepts lines of "Name, email@x.com, Team" or "Name <email@x.com> Team" or tab-separated (e.g. pasted from PCO/Excel)
-    const lines = pasteText.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-    const newPeople: RosterPerson[] = [];
-    for (const line of lines) {
-      const parts = line.includes("\t") ? line.split("\t") : line.split(",");
-      const trimmed = parts.map((p) => p.trim()).filter(Boolean);
-      const emailMatch = line.match(/[^\s<>,]+@[^\s<>,]+/);
-      const email = emailMatch ? emailMatch[0] : "";
-      const rest = trimmed.filter((p) => p !== email);
-      const name = rest[0] || email;
-      const team = rest[1] || "";
-      if (email || name) newPeople.push({ id: uid(), name, email, team, active: true });
-    }
-    if (newPeople.length) {
-      onChange([...roster, ...newPeople]);
-      setPasteText("");
-    }
+    mergeImported(parseRosterRows(pasteText));
+    setPasteText("");
+  }
+
+  async function importFile(file: File) {
+    const text = await file.text();
+    mergeImported(parseRosterRows(text));
+    if (fileInputRef.current) fileInputRef.current.value = "";
   }
 
   const recipientsString = roster.filter((p) => p.active).map((p) => p.email).filter(Boolean).join("; ");
@@ -68,9 +92,22 @@ export default function RosterTab({ roster, onChange }: Props) {
       <button type="button" onClick={add}>+ Add person</button>
 
       <h3>Bulk import</h3>
-      <p className="muted">Paste rows copied from PCO/Excel — one person per line: Name, email, Team (tabs or commas both work).</p>
+      <p className="muted">
+        Upload a .csv exported from PCO (People or a plan's Team Members export), or paste rows copied from a PCO/Excel
+        table. Headers like Name/Email/Team are detected automatically; without headers it reads Name, Email, Team per
+        line. Re-importing is safe — people are matched by email and updated, not duplicated.
+      </p>
+      <div className="row">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".csv,.tsv,.txt,text/csv"
+          onChange={(e) => e.target.files?.[0] && importFile(e.target.files[0])}
+        />
+      </div>
       <textarea rows={5} value={pasteText} onChange={(e) => setPasteText(e.target.value)} placeholder={"Jane Tan, jane@example.com, Worship\nJohn Lee, john@example.com, Ushering"} />
       <button type="button" onClick={importPasted} disabled={!pasteText.trim()}>Import pasted rows</button>
+      {importStatus && <p className="status">{importStatus}</p>}
 
       <h3>Active recipients (copy into Outlook's To: field)</h3>
       <textarea readOnly rows={3} value={recipientsString} onClick={(e) => (e.target as HTMLTextAreaElement).select()} />

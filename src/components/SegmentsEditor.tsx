@@ -65,63 +65,64 @@ export default function SegmentsEditor({ segments, startTime, teams, onChange, o
         <span className="muted">Ends {displayTime(endTime)} &middot; {totalMin} min total</span>
       </div>
 
-      {segments.map((seg, i) => (
-        <div className="segment-card" key={seg.id}>
-          <div className="segment-header">
-            <span className="time-badge">{displayTime(seg.fixedTime ?? times[i])}</span>
-            <input
-              className="program-input"
-              placeholder="Programme item (e.g. Praise & Worship (Live))"
-              value={seg.program}
-              onChange={(e) => update(seg.id, { program: e.target.value })}
-            />
-            <input
-              className="duration-input"
-              type="number"
-              min={0}
-              value={seg.durationMin}
-              onChange={(e) => update(seg.id, { durationMin: parseInt(e.target.value, 10) || 0 })}
-              title="Duration (minutes)"
-            />
-            <span className="muted">min</span>
-            <div className="segment-actions">
-              <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
-              <button type="button" onClick={() => move(i, 1)} disabled={i === segments.length - 1}>↓</button>
-              <button type="button" className="danger" onClick={() => remove(seg.id)}>Remove</button>
-            </div>
-          </div>
-
-          <details className="fixed-time-toggle">
-            <summary>Pin exact time (optional)</summary>
-            <input
-              type="time"
-              value={seg.fixedTime ?? ""}
-              onChange={(e) => update(seg.id, { fixedTime: e.target.value || undefined })}
-            />
-            <span className="muted">Leave blank to auto-chain from the previous item</span>
-          </details>
-
-          <div className="assignments">
-            {seg.assignments.map((a) => (
-              <div className="assignment-row" key={a.id}>
-                <select value={a.team} onChange={(e) => updateAssignment(seg.id, a.id, { team: e.target.value })}>
-                  {teams.map((t) => (
-                    <option key={t} value={t}>{t}</option>
-                  ))}
-                </select>
+      <table className="simple-table segments-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Min</th>
+            <th>Programme</th>
+            <th>Team assignments (for the email)</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {segments.map((seg, i) => (
+            <tr key={seg.id}>
+              <td className="time-cell">{displayTime(times[i])}</td>
+              <td>
                 <input
-                  placeholder="Action required (shown in the email)"
-                  value={a.action}
-                  onChange={(e) => updateAssignment(seg.id, a.id, { action: e.target.value })}
+                  className="duration-input"
+                  type="number"
+                  min={0}
+                  value={seg.durationMin}
+                  onChange={(e) => update(seg.id, { durationMin: parseInt(e.target.value, 10) || 0 })}
                 />
-                <button type="button" className="danger small" onClick={() => removeAssignment(seg.id, a.id)}>✕</button>
-              </div>
-            ))}
-            <button type="button" className="link" onClick={() => addAssignment(seg.id)}>+ assign to a team (for the email)</button>
-          </div>
-        </div>
-      ))}
-
+              </td>
+              <td>
+                <input
+                  className="program-input"
+                  placeholder="e.g. Praise & Worship (Live)"
+                  value={seg.program}
+                  onChange={(e) => update(seg.id, { program: e.target.value })}
+                />
+              </td>
+              <td>
+                {seg.assignments.map((a) => (
+                  <div className="assignment-row" key={a.id}>
+                    <select value={a.team} onChange={(e) => updateAssignment(seg.id, a.id, { team: e.target.value })}>
+                      {teams.map((t) => (
+                        <option key={t} value={t}>{t}</option>
+                      ))}
+                    </select>
+                    <input
+                      placeholder="Action required"
+                      value={a.action}
+                      onChange={(e) => updateAssignment(seg.id, a.id, { action: e.target.value })}
+                    />
+                    <button type="button" className="danger small" onClick={() => removeAssignment(seg.id, a.id)}>✕</button>
+                  </div>
+                ))}
+                <button type="button" className="link small" onClick={() => addAssignment(seg.id)}>+ assign a team</button>
+              </td>
+              <td className="row-actions">
+                <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>↑</button>
+                <button type="button" onClick={() => move(i, 1)} disabled={i === segments.length - 1}>↓</button>
+                <button type="button" className="danger small" onClick={() => remove(seg.id)}>✕</button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
       <button type="button" onClick={addSegment}>+ Add programme item</button>
     </div>
   );

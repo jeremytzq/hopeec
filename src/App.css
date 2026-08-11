@@ -137,49 +137,14 @@ button.link { background: none; border: none; color: var(--accent); padding: 4px
 .simple-table .time-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .row-actions { display: flex; gap: 4px; white-space: nowrap; }
 
-.segment-card {
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 10px;
-  margin-bottom: 8px;
-  background: #fbfbfc;
-}
-
-.segment-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.time-badge {
-  font-variant-numeric: tabular-nums;
-  font-weight: 600;
-  background: #eef2ff;
-  color: var(--accent);
-  padding: 3px 8px;
-  border-radius: 4px;
-  min-width: 44px;
-  text-align: center;
-}
-
-.program-input { flex: 1 1 220px; }
 .duration-input { width: 60px; }
-.segment-actions { display: flex; gap: 4px; margin-left: auto; }
 
-.fixed-time-toggle { margin-top: 8px; font-size: 12px; color: var(--muted); }
-.fixed-time-toggle input { margin-left: 8px; }
+.segments-table th:nth-child(1), .segments-table td:nth-child(1) { width: 60px; }
+.segments-table th:nth-child(2), .segments-table td:nth-child(2) { width: 60px; }
+.segments-table th:nth-child(3), .segments-table td:nth-child(3) { width: 26%; }
+.segments-table th:nth-child(5), .segments-table td:nth-child(5) { width: 90px; }
 
-.assignments {
-  margin-top: 8px;
-  padding-top: 8px;
-  border-top: 1px dashed var(--border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.assignment-row { display: flex; gap: 6px; align-items: center; }
+.assignment-row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
 .assignment-row select { flex: 0 0 auto; }
 .assignment-row input { flex: 1; }
 
