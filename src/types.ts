@@ -8,7 +8,6 @@ export type Segment = {
   id: string;
   program: string;
   durationMin: number;
-  live: boolean;
   fixedTime?: string; // optional override, else chained from plan startTime
   assignments: TeamAssignment[];
 };
@@ -61,7 +60,7 @@ export function uid(): string {
 }
 
 export function blankSegment(): Segment {
-  return { id: uid(), program: "", durationMin: 5, live: true, assignments: [] };
+  return { id: uid(), program: "", durationMin: 5, assignments: [] };
 }
 
 export function blankRehearsal(): RehearsalItem {
