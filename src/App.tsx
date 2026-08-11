@@ -3,6 +3,7 @@ import type { RosterPerson, WeeklyPlan } from "./types";
 import { loadRoster, saveRoster, loadPlans, savePlan } from "./storage";
 import PlannerTab, { newPlanForDate } from "./components/PlannerTab";
 import RosterTab from "./components/RosterTab";
+import { deriveShortServiceName, formatLongDate } from "./utils/time";
 import "./App.css";
 
 function nextSunday(): string {
@@ -45,6 +46,7 @@ function App() {
       ...source,
       id: plan.date,
       date: plan.date,
+      emailSubject: `[${deriveShortServiceName(source.serviceName)}] Service Brief for ${formatLongDate(plan.date)}`,
       sermonTitle: "",
       speaker: "",
       holyCommunion: false,

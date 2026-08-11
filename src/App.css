@@ -184,16 +184,20 @@ tr.drag-over td { border-top: 2px solid var(--accent); }
   margin: 0;
 }
 
-.segments-table { table-layout: fixed; }
-.segments-table th:nth-child(1), .segments-table td:nth-child(1) { width: 40px; }
-.segments-table th:nth-child(2), .segments-table td:nth-child(2) { width: 48px; }
-.segments-table th:nth-child(3), .segments-table td:nth-child(3) { width: auto; }
-.segments-table th:nth-child(4), .segments-table td:nth-child(4) { width: 220px; }
-.segments-table th:nth-child(5), .segments-table td:nth-child(5) { width: 64px; }
+/* Fixed width sized to actual content needs (not stretched to fill the card) -
+   Programme text is short, so it no longer soaks up 100% of the leftover space. */
+.segments-table { table-layout: fixed; width: auto; }
+.segments-table th:nth-child(1), .segments-table td:nth-child(1) { width: 56px; }
+.segments-table th:nth-child(2), .segments-table td:nth-child(2) { width: 64px; }
+.segments-table th:nth-child(3), .segments-table td:nth-child(3) { width: 320px; }
+.segments-table th:nth-child(4), .segments-table td:nth-child(4) { width: 660px; }
+.segments-table th:nth-child(5), .segments-table td:nth-child(5) { width: 90px; }
+
+.table-scroll { overflow-x: auto; }
 
 .assignment-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; margin-bottom: 4px; }
-.assignment-row select { flex: 1 1 70px; min-width: 60px; }
-.assignment-row input { flex: 1 1 70px; min-width: 60px; }
+.assignment-row select { flex: 0 0 140px; }
+.assignment-row input { flex: 1 1 auto; width: auto; min-width: 120px; }
 
 .rehearsal-table { table-layout: fixed; }
 .rehearsal-table th:nth-child(1), .rehearsal-table td:nth-child(1) { width: 44px; }
@@ -215,6 +219,8 @@ tr.drag-over td { border-top: 2px solid var(--accent); }
 }
 
 .recipient-search { width: 100%; margin-bottom: 10px; }
+
+.subject-input { flex: 1; }
 
 .recipient-group { margin-bottom: 10px; }
 .recipient-group-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; margin-top: 12px; }

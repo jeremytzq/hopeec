@@ -1,3 +1,5 @@
+import { deriveShortServiceName, formatLongDate } from "./utils/time";
+
 export type TeamAssignment = {
   id: string;
   team: string;
@@ -38,6 +40,7 @@ export type WeeklyPlan = {
   date: string; // yyyy-mm-dd
   serviceName: string; // "Sunday East Adults 9:30am"
   teamGreetingName: string; // "East Team"
+  emailSubject: string; // e.g. "[East Adults] Service Brief for 9 August 2026"
   sermonTitle: string;
   speaker: string;
   holyCommunion: boolean;
@@ -72,11 +75,13 @@ export function blankCallTime(): CallTimeItem {
 }
 
 export function blankPlan(date: string): WeeklyPlan {
+  const serviceName = "Sunday East Adults 9:30am";
   return {
     id: date,
     date,
-    serviceName: "Sunday East Adults 9:30am",
+    serviceName,
     teamGreetingName: "East Team",
+    emailSubject: `[${deriveShortServiceName(serviceName)}] Service Brief for ${formatLongDate(date)}`,
     sermonTitle: "",
     speaker: "",
     holyCommunion: false,

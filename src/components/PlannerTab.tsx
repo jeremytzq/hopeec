@@ -7,7 +7,7 @@ import RehearsalEditor from "./RehearsalEditor";
 import CallTimesEditor from "./CallTimesEditor";
 import RecipientsPicker from "./RecipientsPicker";
 import { downloadServiceBriefPdf } from "../pdf";
-import { buildEmailHtml, buildEmailSubject, buildRecipientsString, copyEmailToClipboard } from "../email";
+import { buildEmailHtml, buildRecipientsString, copyEmailToClipboard } from "../email";
 import { buildPastorSummary, copyToClipboardText } from "../whatsapp";
 import { copyProgramImageToClipboard, downloadProgramImage } from "../screenshot";
 
@@ -93,6 +93,12 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
   async function handleCopyRecipients() {
     await copyToClipboardText(recipientsString);
     setCopyStatus("Recipients copied — paste into Outlook's To: field.");
+    setTimeout(() => setCopyStatus(""), 4000);
+  }
+
+  async function handleCopySubject() {
+    await copyToClipboardText(plan.emailSubject);
+    setCopyStatus("Subject copied — paste into Outlook's Subject field.");
     setTimeout(() => setCopyStatus(""), 4000);
   }
 
@@ -213,27 +219,22 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         </div>
       </div>
 
-      <div className="two-col">
-        <div>
-          <h2 className="h-order">Order of service</h2>
-          <SegmentsEditor
-            segments={plan.segments}
-            startTime={plan.startTime}
-            teams={plan.teams}
-            onChange={(segments) => set("segments", segments)}
-            onStartTimeChange={(t) => set("startTime", t)}
-          />
-        </div>
-        <div>
-          <h2 className="h-rehearsal">Rehearsal schedule</h2>
-          <RehearsalEditor
-            items={plan.rehearsal}
-            startTime={plan.rehearsalStartTime}
-            onChange={(rehearsal) => set("rehearsal", rehearsal)}
-            onStartTimeChange={(t) => set("rehearsalStartTime", t)}
-          />
-        </div>
-      </div>
+      <h2 className="h-order">Order of service</h2>
+      <SegmentsEditor
+        segments={plan.segments}
+        startTime={plan.startTime}
+        teams={plan.teams}
+        onChange={(segments) => set("segments", segments)}
+        onStartTimeChange={(t) => set("startTime", t)}
+      />
+
+      <h2 className="h-rehearsal">Rehearsal schedule</h2>
+      <RehearsalEditor
+        items={plan.rehearsal}
+        startTime={plan.rehearsalStartTime}
+        onChange={(rehearsal) => set("rehearsal", rehearsal)}
+        onStartTimeChange={(t) => set("rehearsalStartTime", t)}
+      />
 
       <div className="two-col">
         <div>
@@ -248,6 +249,14 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
 
       <h2 className="h-send">Send it out</h2>
       <div className="editor-block">
+        <label>
+          Email subject
+          <div className="row">
+            <input className="subject-input" value={plan.emailSubject} onChange={(e) => set("emailSubject", e.target.value)} placeholder="e.g. [East Adults] Service Brief for 9 August 2026" />
+            <button type="button" onClick={handleCopySubject}>Copy subject</button>
+          </div>
+        </label>
+
         <div className="row wrap">
           <button type="button" onClick={() => downloadServiceBriefPdf(plan)}>Download Service Brief PDF</button>
           <button type="button" onClick={handleCopyEmail}>Copy email (for Outlook)</button>
@@ -257,7 +266,6 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
           <button type="button" onClick={handleDownloadProgramImage}>Download program image</button>
         </div>
         {copyStatus && <p className="status">{copyStatus}</p>}
-        <p className="muted">Subject line: {buildEmailSubject(plan)}</p>
 
         <details>
           <summary>Preview email</summary>

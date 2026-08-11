@@ -29,6 +29,22 @@ export function formatDuration(min: number): string {
   return `${h}:${String(m).padStart(2, "0")}`;
 }
 
+// "2026-08-09" -> "9 August 2026"
+export function formatLongDate(isoDate: string): string {
+  const [y, m, d] = isoDate.split("-").map(Number);
+  if (!y || !m || !d) return isoDate;
+  return new Date(y, m - 1, d).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}
+
+// "Sunday East Adults 9:30am" -> "East Adults"
+export function deriveShortServiceName(serviceName: string): string {
+  const stripped = serviceName
+    .replace(/^sunday\s+/i, "")
+    .replace(/\s*\d{1,2}(:\d{2})?\s*(am|pm)\s*$/i, "")
+    .trim();
+  return stripped || serviceName;
+}
+
 export type Chained = { time: string; durationMin: number };
 
 // Chains a list of durations starting at startTime, returning the computed

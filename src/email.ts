@@ -73,10 +73,6 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
   return parts.join("\n");
 }
 
-export function buildEmailSubject(plan: WeeklyPlan): string {
-  return `[Service Brief] ${plan.serviceName} - ${plan.date}${plan.sermonTitle ? " - " + plan.sermonTitle : ""}`;
-}
-
 export function buildRecipientsString(plan: WeeklyPlan, roster: RosterPerson[]): string {
   const ids = new Set(plan.recipientIds);
   return roster
