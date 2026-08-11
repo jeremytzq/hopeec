@@ -108,6 +108,7 @@ label {
   font-size: 13px;
   color: var(--muted);
   flex: 1 1 200px;
+  margin-bottom: 12px;
 }
 
 label.inline-check, .inline-check {
@@ -155,6 +156,16 @@ button.link { background: none; border: none; color: var(--accent); padding: 4px
 .simple-table th, .simple-table td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; font-size: 13px; overflow: hidden; }
 .simple-table input { width: 100%; box-sizing: border-box; }
 .simple-table .time-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.drag-handle {
+  width: 22px;
+  text-align: center;
+  color: var(--muted);
+  cursor: grab;
+  user-select: none;
+}
+tr.dragging { opacity: 0.4; }
+tr.drag-over td { border-top: 2px solid var(--accent); }
 .row-actions { display: flex; gap: 2px; white-space: nowrap; }
 .row-actions button { padding: 2px 5px; font-size: 12px; }
 .segments-table td.row-actions, .rehearsal-table td.row-actions { padding-left: 4px; padding-right: 4px; }

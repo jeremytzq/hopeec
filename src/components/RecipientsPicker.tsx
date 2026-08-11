@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { RosterPerson } from "../types";
+import { DEFAULT_CC_LIST } from "../defaultCc";
 
 type Props = {
   roster: RosterPerson[];
@@ -9,7 +10,14 @@ type Props = {
 
 export default function RecipientsPicker({ roster, selectedIds, onChange }: Props) {
   const [query, setQuery] = useState("");
+  const [ccStatus, setCcStatus] = useState("");
   const selected = new Set(selectedIds);
+
+  async function copyCcList() {
+    await navigator.clipboard.writeText(DEFAULT_CC_LIST);
+    setCcStatus("CC list copied — paste into Outlook's CC field.");
+    setTimeout(() => setCcStatus(""), 4000);
+  }
 
   function add(id: string) {
     if (selected.has(id)) return;
@@ -66,6 +74,11 @@ export default function RecipientsPicker({ roster, selectedIds, onChange }: Prop
       ))}
 
       {roster.length === 0 && <p className="muted">No one in your roster yet — add volunteers in the Roster tab.</p>}
+
+      <div className="recipient-group-title">Default CC list</div>
+      <p className="muted">Standing leadership/staff list, separate from the recipients above — paste into Outlook's CC field.</p>
+      <button type="button" onClick={copyCcList}>Copy CC list</button>
+      {ccStatus && <p className="status">{ccStatus}</p>}
     </div>
   );
 }
