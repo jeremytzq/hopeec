@@ -9,6 +9,7 @@ import RecipientsPicker from "./RecipientsPicker";
 import { downloadServiceBriefPdf } from "../pdf";
 import { buildEmailHtml, buildEmailSubject, buildRecipientsString, copyEmailToClipboard } from "../email";
 import { buildPastorSummary, copyToClipboardText } from "../whatsapp";
+import { copyProgramImageToClipboard, downloadProgramImage } from "../screenshot";
 
 type Props = {
   plan: WeeklyPlan;
@@ -71,7 +72,23 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
 
   async function handleCopyWhatsapp() {
     await copyToClipboardText(pastorSummary);
-    setCopyStatus("Summary copied — paste into WhatsApp for your pastor.");
+    setCopyStatus("Message copied — paste into WhatsApp for your pastor.");
+    setTimeout(() => setCopyStatus(""), 4000);
+  }
+
+  async function handleDownloadProgramImage() {
+    await downloadProgramImage(plan);
+    setCopyStatus("Program image downloaded — attach it in WhatsApp.");
+    setTimeout(() => setCopyStatus(""), 4000);
+  }
+
+  async function handleCopyProgramImage() {
+    try {
+      await copyProgramImageToClipboard(plan);
+      setCopyStatus("Program image copied — paste into WhatsApp.");
+    } catch {
+      setCopyStatus("Clipboard copy failed — use \"Download program image\" and attach it instead.");
+    }
     setTimeout(() => setCopyStatus(""), 4000);
   }
 
@@ -186,11 +203,16 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         onStartTimeChange={(t) => set("rehearsalStartTime", t)}
       />
 
-      <h2>Call times</h2>
-      <CallTimesEditor items={plan.callTimes} onChange={(callTimes) => set("callTimes", callTimes)} />
-
-      <h2>Recipients this week</h2>
-      <RecipientsPicker roster={roster} selectedIds={plan.recipientIds} onChange={(ids) => set("recipientIds", ids)} />
+      <div className="two-col">
+        <div>
+          <h2>Call times</h2>
+          <CallTimesEditor items={plan.callTimes} onChange={(callTimes) => set("callTimes", callTimes)} />
+        </div>
+        <div>
+          <h2>Recipients this week</h2>
+          <RecipientsPicker roster={roster} selectedIds={plan.recipientIds} onChange={(ids) => set("recipientIds", ids)} />
+        </div>
+      </div>
 
       <h2>Send it out</h2>
       <div className="editor-block">
@@ -198,7 +220,9 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
           <button type="button" onClick={() => downloadServiceBriefPdf(plan)}>Download Service Brief PDF</button>
           <button type="button" onClick={handleCopyEmail}>Copy email (for Outlook)</button>
           <button type="button" onClick={handleCopyRecipients}>Copy recipient list</button>
-          <button type="button" onClick={handleCopyWhatsapp}>Copy pastor summary (WhatsApp)</button>
+          <button type="button" onClick={handleCopyWhatsapp}>Copy pastor message (WhatsApp)</button>
+          <button type="button" onClick={handleCopyProgramImage}>Copy program image (WhatsApp)</button>
+          <button type="button" onClick={handleDownloadProgramImage}>Download program image</button>
         </div>
         {copyStatus && <p className="status">{copyStatus}</p>}
         <p className="muted">Subject line: {buildEmailSubject(plan)}</p>

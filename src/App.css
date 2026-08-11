@@ -64,6 +64,17 @@ h2 {
   color: var(--text);
 }
 
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 700px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
 .editor-block {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -132,15 +143,17 @@ button.link { background: none; border: none; color: var(--accent); padding: 4px
 .status { color: #1a7f37; font-weight: 600; font-size: 13px; }
 
 .simple-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-.simple-table th, .simple-table td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; font-size: 13px; }
-.simple-table input { width: 100%; }
+.simple-table th, .simple-table td { border: 1px solid var(--border); padding: 6px 8px; text-align: left; font-size: 13px; overflow: hidden; }
+.simple-table input { width: 100%; box-sizing: border-box; }
 .simple-table .time-cell { font-variant-numeric: tabular-nums; white-space: nowrap; }
 .row-actions { display: flex; gap: 4px; white-space: nowrap; }
 
-.duration-input { width: 60px; }
+.duration-input { width: 48px; }
 
-.segments-table th:nth-child(1), .segments-table td:nth-child(1) { width: 60px; }
-.segments-table th:nth-child(2), .segments-table td:nth-child(2) { width: 60px; }
+.segments-table { table-layout: fixed; }
+.segments-table th:nth-child(1), .segments-table td:nth-child(1) { width: 56px; }
+.segments-table th:nth-child(2), .segments-table td:nth-child(2) { width: 76px; }
+.segments-table th:nth-child(3), .segments-table td:nth-child(3) { width: auto; }
 .segments-table th:nth-child(4), .segments-table td:nth-child(4) { width: 90px; }
 
 .chip {
