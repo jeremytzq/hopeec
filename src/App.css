@@ -189,8 +189,19 @@ button.link { background: none; border: none; color: var(--accent); padding: 4px
 .recipient-search { width: 100%; margin-bottom: 10px; }
 
 .recipient-group { margin-bottom: 10px; }
-.recipient-group-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+.recipient-group-title { font-weight: 600; font-size: 13px; margin-bottom: 4px; margin-top: 12px; }
 .recipient-group label { display: flex; margin-bottom: 2px; }
+
+.recipient-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+.recipient-row:last-of-type { border-bottom: none; }
 
 .email-preview {
   border: 1px solid var(--border);

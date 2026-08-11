@@ -11,11 +11,13 @@ export default function RecipientsPicker({ roster, selectedIds, onChange }: Prop
   const [query, setQuery] = useState("");
   const selected = new Set(selectedIds);
 
-  function toggle(id: string) {
-    const next = new Set(selected);
-    if (next.has(id)) next.delete(id);
-    else next.add(id);
-    onChange([...next]);
+  function add(id: string) {
+    if (selected.has(id)) return;
+    onChange([...selectedIds, id]);
+  }
+
+  function remove(id: string) {
+    onChange(selectedIds.filter((x) => x !== id));
   }
 
   function selectAllActive() {
@@ -23,14 +25,8 @@ export default function RecipientsPicker({ roster, selectedIds, onChange }: Prop
   }
 
   const q = query.trim().toLowerCase();
-  const filtered = q ? roster.filter((p) => p.name.toLowerCase().includes(q)) : roster;
-
-  const byTeam = new Map<string, RosterPerson[]>();
-  for (const p of filtered) {
-    const key = p.team || "(no team)";
-    if (!byTeam.has(key)) byTeam.set(key, []);
-    byTeam.get(key)!.push(p);
-  }
+  const results = q ? roster.filter((p) => p.name.toLowerCase().includes(q)) : [];
+  const selectedPeople = roster.filter((p) => selected.has(p.id));
 
   return (
     <div className="editor-block">
@@ -39,24 +35,36 @@ export default function RecipientsPicker({ roster, selectedIds, onChange }: Prop
         <button type="button" onClick={() => onChange([])}>Clear</button>
         <span className="muted">{selectedIds.length} selected</span>
       </div>
+
       <input
         className="recipient-search"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search by name…"
+        placeholder="Search volunteer roster by name…"
       />
-      {roster.length > 0 && filtered.length === 0 && <p className="muted">No one matches "{query}".</p>}
-      {[...byTeam.entries()].map(([team, people]) => (
-        <div key={team} className="recipient-group">
-          <div className="recipient-group-title">{team}</div>
-          {people.map((p) => (
+      {q && results.length === 0 && <p className="muted">No one in the roster matches "{query}".</p>}
+      {q && results.length > 0 && (
+        <div className="recipient-group">
+          {results.map((p) => (
             <label key={p.id} className="inline-check">
-              <input type="checkbox" checked={selected.has(p.id)} onChange={() => toggle(p.id)} />
+              <input type="checkbox" checked={selected.has(p.id)} onChange={() => (selected.has(p.id) ? remove(p.id) : add(p.id))} />
               {p.name} {p.email && <span className="muted">&lt;{p.email}&gt;</span>}
             </label>
           ))}
         </div>
+      )}
+
+      <div className="recipient-group-title">Added this week ({selectedPeople.length})</div>
+      {selectedPeople.length === 0 && (
+        <p className="muted">No one added yet — search above and tick a name to add them.</p>
+      )}
+      {selectedPeople.map((p) => (
+        <div key={p.id} className="recipient-row">
+          <span>{p.name} {p.email && <span className="muted">&lt;{p.email}&gt;</span>}</span>
+          <button type="button" className="danger small" onClick={() => remove(p.id)}>✕</button>
+        </div>
       ))}
+
       {roster.length === 0 && <p className="muted">No one in your roster yet — add volunteers in the Roster tab.</p>}
     </div>
   );
