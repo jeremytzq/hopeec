@@ -228,24 +228,24 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         onStartTimeChange={(t) => set("startTime", t)}
       />
 
-      <h2 className="h-rehearsal">Rehearsal schedule</h2>
-      <RehearsalEditor
-        items={plan.rehearsal}
-        startTime={plan.rehearsalStartTime}
-        onChange={(rehearsal) => set("rehearsal", rehearsal)}
-        onStartTimeChange={(t) => set("rehearsalStartTime", t)}
-      />
-
       <div className="two-col">
         <div>
-          <h2 className="h-calltimes">Call times</h2>
-          <CallTimesEditor items={plan.callTimes} onChange={(callTimes) => set("callTimes", callTimes)} />
+          <h2 className="h-rehearsal">Rehearsal schedule</h2>
+          <RehearsalEditor
+            items={plan.rehearsal}
+            startTime={plan.rehearsalStartTime}
+            onChange={(rehearsal) => set("rehearsal", rehearsal)}
+            onStartTimeChange={(t) => set("rehearsalStartTime", t)}
+          />
         </div>
         <div>
           <h2 className="h-recipients">Recipients this week</h2>
           <RecipientsPicker roster={roster} selectedIds={plan.recipientIds} onChange={(ids) => set("recipientIds", ids)} />
         </div>
       </div>
+
+      <h2 className="h-calltimes">Call times</h2>
+      <CallTimesEditor items={plan.callTimes} onChange={(callTimes) => set("callTimes", callTimes)} />
 
       <h2 className="h-send">Send it out</h2>
       <div className="editor-block">
