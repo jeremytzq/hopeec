@@ -149,7 +149,7 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         </div>
         <label>
           Intro note (bold instruction line in the email)
-          <textarea rows={2} value={plan.introNote} onChange={(e) => set("introNote", e.target.value)} />
+          <textarea rows={4} value={plan.introNote} onChange={(e) => set("introNote", e.target.value)} />
         </label>
         <label>
           Closing note
