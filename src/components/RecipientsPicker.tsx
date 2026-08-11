@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { RosterPerson } from "../types";
-import { DEFAULT_CC_LIST } from "../defaultCc";
+import { DEFAULT_CC_LIST, DEFAULT_CC_PEOPLE } from "../defaultCc";
 
 type Props = {
   roster: RosterPerson[];
@@ -75,8 +75,13 @@ export default function RecipientsPicker({ roster, selectedIds, onChange }: Prop
 
       {roster.length === 0 && <p className="muted">No one in your roster yet — add volunteers in the Roster tab.</p>}
 
-      <div className="recipient-group-title">Default CC list</div>
+      <div className="recipient-group-title">Default CC list ({DEFAULT_CC_PEOPLE.length})</div>
       <p className="muted">Standing leadership/staff list, separate from the recipients above — paste into Outlook's CC field.</p>
+      {DEFAULT_CC_PEOPLE.map((p) => (
+        <div key={p.email} className="recipient-row">
+          <span>{p.name} <span className="muted">&lt;{p.email}&gt;</span></span>
+        </div>
+      ))}
       <button type="button" onClick={copyCcList}>Copy CC list</button>
       {ccStatus && <p className="status">{ccStatus}</p>}
     </div>

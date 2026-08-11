@@ -85,6 +85,24 @@ h2.h-send { border-color: #c0392b; color: #c0392b; }
   .two-col { grid-template-columns: 1fr; }
 }
 
+/* Rehearsal (top-left) + Call times (bottom-left) stacked in one column,
+   Recipients (right) spans the full height of both. */
+.rehearsal-recipients-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 20px;
+}
+.grid-slot-rehearsal { grid-column: 1; grid-row: 1; }
+.grid-slot-calltimes { grid-column: 1; grid-row: 2; }
+.grid-slot-recipients { grid-column: 2; grid-row: 1 / 3; display: flex; flex-direction: column; }
+.grid-slot-recipients .editor-block { flex: 1; }
+
+@media (max-width: 700px) {
+  .rehearsal-recipients-grid { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .grid-slot-rehearsal, .grid-slot-calltimes, .grid-slot-recipients { grid-column: 1; grid-row: auto; }
+}
+
 .editor-block {
   background: var(--card-bg);
   border: 1px solid var(--border);

@@ -234,8 +234,8 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         onStartTimeChange={(t) => set("startTime", t)}
       />
 
-      <div className="two-col">
-        <div>
+      <div className="rehearsal-recipients-grid">
+        <div className="grid-slot-rehearsal">
           <h2 className="h-rehearsal">Rehearsal schedule</h2>
           <RehearsalEditor
             items={plan.rehearsal}
@@ -244,16 +244,13 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
             onStartTimeChange={(t) => set("rehearsalStartTime", t)}
           />
         </div>
-        <div>
-          <h2 className="h-recipients">Recipients this week</h2>
-          <RecipientsPicker roster={roster} selectedIds={plan.recipientIds} onChange={(ids) => set("recipientIds", ids)} />
-        </div>
-      </div>
-
-      <div className="two-col">
-        <div>
+        <div className="grid-slot-calltimes">
           <h2 className="h-calltimes">Call times</h2>
           <CallTimesEditor items={plan.callTimes} onChange={(callTimes) => set("callTimes", callTimes)} />
+        </div>
+        <div className="grid-slot-recipients">
+          <h2 className="h-recipients">Recipients this week</h2>
+          <RecipientsPicker roster={roster} selectedIds={plan.recipientIds} onChange={(ids) => set("recipientIds", ids)} />
         </div>
       </div>
 
