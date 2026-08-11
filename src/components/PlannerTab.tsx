@@ -132,7 +132,7 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         </div>
       </div>
 
-      <h2>Service details</h2>
+      <h2 className="h-details">Service details</h2>
       <div className="editor-block">
         <div className="row wrap">
           <label>
@@ -172,7 +172,7 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         </label>
       </div>
 
-      <h2>Teams (for the email's per-team tables)</h2>
+      <h2 className="h-teams">Teams (for the email's per-team tables)</h2>
       <div className="editor-block">
         <div className="row wrap">
           {plan.teams.map((t) => (
@@ -187,34 +187,39 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         </div>
       </div>
 
-      <h2>Order of service</h2>
-      <SegmentsEditor
-        segments={plan.segments}
-        startTime={plan.startTime}
-        onChange={(segments) => set("segments", segments)}
-        onStartTimeChange={(t) => set("startTime", t)}
-      />
-
-      <h2>Rehearsal schedule</h2>
-      <RehearsalEditor
-        items={plan.rehearsal}
-        startTime={plan.rehearsalStartTime}
-        onChange={(rehearsal) => set("rehearsal", rehearsal)}
-        onStartTimeChange={(t) => set("rehearsalStartTime", t)}
-      />
+      <div className="two-col">
+        <div>
+          <h2 className="h-order">Order of service</h2>
+          <SegmentsEditor
+            segments={plan.segments}
+            startTime={plan.startTime}
+            onChange={(segments) => set("segments", segments)}
+            onStartTimeChange={(t) => set("startTime", t)}
+          />
+        </div>
+        <div>
+          <h2 className="h-rehearsal">Rehearsal schedule</h2>
+          <RehearsalEditor
+            items={plan.rehearsal}
+            startTime={plan.rehearsalStartTime}
+            onChange={(rehearsal) => set("rehearsal", rehearsal)}
+            onStartTimeChange={(t) => set("rehearsalStartTime", t)}
+          />
+        </div>
+      </div>
 
       <div className="two-col">
         <div>
-          <h2>Call times</h2>
+          <h2 className="h-calltimes">Call times</h2>
           <CallTimesEditor items={plan.callTimes} onChange={(callTimes) => set("callTimes", callTimes)} />
         </div>
         <div>
-          <h2>Recipients this week</h2>
+          <h2 className="h-recipients">Recipients this week</h2>
           <RecipientsPicker roster={roster} selectedIds={plan.recipientIds} onChange={(ids) => set("recipientIds", ids)} />
         </div>
       </div>
 
-      <h2>Send it out</h2>
+      <h2 className="h-send">Send it out</h2>
       <div className="editor-block">
         <div className="row wrap">
           <button type="button" onClick={() => downloadServiceBriefPdf(plan)}>Download Service Brief PDF</button>

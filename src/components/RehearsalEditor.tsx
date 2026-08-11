@@ -37,22 +37,24 @@ export default function RehearsalEditor({ items, startTime, onChange, onStartTim
           <input type="time" value={startTime} onChange={(e) => onStartTimeChange(e.target.value)} />
         </label>
       </div>
-      <table className="simple-table">
+      <table className="simple-table rehearsal-table">
         <thead>
-          <tr><th>Time</th><th>Duration (min)</th><th>Programme</th><th></th></tr>
+          <tr><th>Time</th><th>Duration</th><th>Programme</th><th></th></tr>
         </thead>
         <tbody>
           {items.map((it, i) => (
             <tr key={it.id}>
               <td className="time-cell">{displayTime(it.fixedTime ?? times[i])}</td>
               <td>
-                {!it.noDuration && (
-                  <input type="number" min={0} value={it.durationMin} onChange={(e) => update(it.id, { durationMin: parseInt(e.target.value, 10) || 0 })} />
-                )}
-                <label className="inline-check small">
-                  <input type="checkbox" checked={!!it.noDuration} onChange={(e) => update(it.id, { noDuration: e.target.checked })} />
-                  no duration
-                </label>
+                <div className="duration-cell">
+                  {!it.noDuration && (
+                    <input className="duration-input" type="number" min={0} value={it.durationMin} onChange={(e) => update(it.id, { durationMin: parseInt(e.target.value, 10) || 0 })} />
+                  )}
+                  <label className="inline-check small">
+                    <input type="checkbox" checked={!!it.noDuration} onChange={(e) => update(it.id, { noDuration: e.target.checked })} />
+                    no duration
+                  </label>
+                </div>
               </td>
               <td><input value={it.program} onChange={(e) => update(it.id, { program: e.target.value })} placeholder="e.g. Soundcheck - Vocalists" /></td>
               <td className="row-actions">
