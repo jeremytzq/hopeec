@@ -1,6 +1,7 @@
 import type { RosterPerson, WeeklyPlan } from "./types";
 import type { CcPerson } from "./defaultCc";
 import { DEFAULT_CC_PEOPLE } from "./defaultCc";
+import { deriveShortServiceName, formatLongDate } from "./utils/time";
 
 const ROSTER_KEY = "hopeec.roster.v1";
 const PLANS_KEY = "hopeec.plans.v1";
@@ -36,7 +37,14 @@ export function saveCcList(ccList: CcPerson[]): void {
 export function loadPlans(): Record<string, WeeklyPlan> {
   try {
     const raw = localStorage.getItem(PLANS_KEY);
-    return raw ? JSON.parse(raw) : {};
+    const plans: Record<string, WeeklyPlan> = raw ? JSON.parse(raw) : {};
+    // Backfills plans saved before the emailSubject field existed.
+    for (const plan of Object.values(plans)) {
+      if (!plan.emailSubject) {
+        plan.emailSubject = `[${deriveShortServiceName(plan.serviceName)}] Service Brief for ${formatLongDate(plan.date)}`;
+      }
+    }
+    return plans;
   } catch {
     return {};
   }
