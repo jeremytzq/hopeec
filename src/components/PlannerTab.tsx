@@ -174,7 +174,6 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
       <SegmentsEditor
         segments={plan.segments}
         startTime={plan.startTime}
-        teams={plan.teams}
         onChange={(segments) => set("segments", segments)}
         onStartTimeChange={(t) => set("startTime", t)}
       />

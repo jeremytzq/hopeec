@@ -141,12 +141,7 @@ button.link { background: none; border: none; color: var(--accent); padding: 4px
 
 .segments-table th:nth-child(1), .segments-table td:nth-child(1) { width: 60px; }
 .segments-table th:nth-child(2), .segments-table td:nth-child(2) { width: 60px; }
-.segments-table th:nth-child(3), .segments-table td:nth-child(3) { width: 26%; }
-.segments-table th:nth-child(5), .segments-table td:nth-child(5) { width: 90px; }
-
-.assignment-row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
-.assignment-row select { flex: 0 0 auto; }
-.assignment-row input { flex: 1; }
+.segments-table th:nth-child(4), .segments-table td:nth-child(4) { width: 90px; }
 
 .chip {
   display: inline-flex;
