@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import type { RosterPerson, Segment, WeeklyPlan } from "../types";
+import type { CcPerson } from "../defaultCc";
 import { blankPlan, uid } from "../types";
 import { applyDefaultTemplate } from "../defaultTemplate";
 import SegmentsEditor from "./SegmentsEditor";
@@ -16,12 +17,14 @@ type Props = {
   plan: WeeklyPlan;
   onChange: (plan: WeeklyPlan) => void;
   roster: RosterPerson[];
+  ccList: CcPerson[];
+  onCcListChange: (ccList: CcPerson[]) => void;
   allDates: string[];
   onLoadDate: (date: string) => void;
   onDuplicateFrom: (sourceDate: string) => void;
 };
 
-export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDate, onDuplicateFrom }: Props) {
+export default function PlannerTab({ plan, onChange, roster, ccList, onCcListChange, allDates, onLoadDate, onDuplicateFrom }: Props) {
   const [copyStatus, setCopyStatus] = useState("");
   const [newTeam, setNewTeam] = useState("");
 
@@ -250,7 +253,13 @@ export default function PlannerTab({ plan, onChange, roster, allDates, onLoadDat
         </div>
         <div className="grid-slot-recipients">
           <h2 className="h-recipients">Recipients this week</h2>
-          <RecipientsPicker roster={roster} selectedIds={plan.recipientIds} onChange={(ids) => set("recipientIds", ids)} />
+          <RecipientsPicker
+            roster={roster}
+            selectedIds={plan.recipientIds}
+            onChange={(ids) => set("recipientIds", ids)}
+            ccList={ccList}
+            onCcListChange={onCcListChange}
+          />
         </div>
       </div>
 

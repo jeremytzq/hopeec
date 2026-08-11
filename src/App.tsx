@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { RosterPerson, WeeklyPlan } from "./types";
-import { loadRoster, saveRoster, loadPlans, savePlan } from "./storage";
+import type { CcPerson } from "./defaultCc";
+import { loadRoster, saveRoster, loadPlans, savePlan, loadCcList, saveCcList } from "./storage";
 import PlannerTab, { newPlanForDate } from "./components/PlannerTab";
 import RosterTab from "./components/RosterTab";
 import { deriveShortServiceName, formatLongDate } from "./utils/time";
@@ -17,6 +18,7 @@ function nextSunday(): string {
 function App() {
   const [tab, setTab] = useState<"planner" | "roster">("planner");
   const [roster, setRoster] = useState<RosterPerson[]>(() => loadRoster());
+  const [ccList, setCcList] = useState<CcPerson[]>(() => loadCcList());
   const [plansById, setPlansById] = useState<Record<string, WeeklyPlan>>(() => loadPlans());
   const [plan, setPlan] = useState<WeeklyPlan>(() => {
     const plans = loadPlans();
@@ -26,6 +28,7 @@ function App() {
   });
 
   useEffect(() => saveRoster(roster), [roster]);
+  useEffect(() => saveCcList(ccList), [ccList]);
 
   useEffect(() => {
     savePlan(plan);
@@ -73,6 +76,8 @@ function App() {
             plan={plan}
             onChange={setPlan}
             roster={roster}
+            ccList={ccList}
+            onCcListChange={setCcList}
             allDates={allDates}
             onLoadDate={handleLoadDate}
             onDuplicateFrom={handleDuplicateFrom}

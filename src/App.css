@@ -256,6 +256,15 @@ tr.drag-over td { border-top: 2px solid var(--accent); }
 }
 .recipient-row:last-of-type { border-bottom: none; }
 
+.cc-edit-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+.cc-edit-row input:first-child { flex: 1 1 40%; }
+.cc-edit-row input:nth-child(2) { flex: 1 1 60%; }
+
 .email-preview {
   border: 1px solid var(--border);
   border-radius: 6px;

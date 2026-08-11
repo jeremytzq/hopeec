@@ -1,22 +1,38 @@
 import { useState } from "react";
 import type { RosterPerson } from "../types";
-import { DEFAULT_CC_LIST, DEFAULT_CC_PEOPLE } from "../defaultCc";
+import { uid } from "../types";
+import type { CcPerson } from "../defaultCc";
+import { formatCcList } from "../defaultCc";
 
 type Props = {
   roster: RosterPerson[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
+  ccList: CcPerson[];
+  onCcListChange: (ccList: CcPerson[]) => void;
 };
 
-export default function RecipientsPicker({ roster, selectedIds, onChange }: Props) {
+export default function RecipientsPicker({ roster, selectedIds, onChange, ccList, onCcListChange }: Props) {
   const [query, setQuery] = useState("");
   const [ccStatus, setCcStatus] = useState("");
   const selected = new Set(selectedIds);
 
   async function copyCcList() {
-    await navigator.clipboard.writeText(DEFAULT_CC_LIST);
+    await navigator.clipboard.writeText(formatCcList(ccList));
     setCcStatus("CC list copied — paste into Outlook's CC field.");
     setTimeout(() => setCcStatus(""), 4000);
+  }
+
+  function updateCcPerson(id: string, patch: Partial<CcPerson>) {
+    onCcListChange(ccList.map((p) => (p.id === id ? { ...p, ...patch } : p)));
+  }
+
+  function removeCcPerson(id: string) {
+    onCcListChange(ccList.filter((p) => p.id !== id));
+  }
+
+  function addCcPerson() {
+    onCcListChange([...ccList, { id: uid(), name: "", email: "" }]);
   }
 
   function add(id: string) {
@@ -75,14 +91,19 @@ export default function RecipientsPicker({ roster, selectedIds, onChange }: Prop
 
       {roster.length === 0 && <p className="muted">No one in your roster yet — add volunteers in the Roster tab.</p>}
 
-      <div className="recipient-group-title">Default CC list ({DEFAULT_CC_PEOPLE.length})</div>
+      <div className="recipient-group-title">Default CC list ({ccList.length})</div>
       <p className="muted">Standing leadership/staff list, separate from the recipients above — paste into Outlook's CC field.</p>
-      {DEFAULT_CC_PEOPLE.map((p) => (
-        <div key={p.email} className="recipient-row">
-          <span>{p.name} <span className="muted">&lt;{p.email}&gt;</span></span>
+      {ccList.map((p) => (
+        <div className="cc-edit-row" key={p.id}>
+          <input value={p.name} onChange={(e) => updateCcPerson(p.id, { name: e.target.value })} placeholder="Name" />
+          <input value={p.email} onChange={(e) => updateCcPerson(p.id, { email: e.target.value })} placeholder="email@example.com" />
+          <button type="button" className="danger small" onClick={() => removeCcPerson(p.id)}>✕</button>
         </div>
       ))}
-      <button type="button" onClick={copyCcList}>Copy CC list</button>
+      <div className="row">
+        <button type="button" onClick={addCcPerson}>+ Add to CC list</button>
+        <button type="button" onClick={copyCcList}>Copy CC list</button>
+      </div>
       {ccStatus && <p className="status">{ccStatus}</p>}
     </div>
   );
