@@ -274,7 +274,7 @@ export default function PlannerTab({ plan, onChange, roster, ccList, onCcListCha
         </label>
 
         <div className="row wrap">
-          <button type="button" onClick={() => downloadServiceBriefPdf(plan)}>Download Service Brief PDF</button>
+          <button type="button" className="primary" onClick={() => downloadServiceBriefPdf(plan)}>Download Service Brief PDF</button>
           <button type="button" onClick={handleCopyEmail}>Copy email (for Outlook)</button>
           <button type="button" onClick={handleCopyRecipients}>Copy recipient list</button>
           <button type="button" onClick={handleCopyWhatsapp}>Copy pastor message (WhatsApp)</button>
