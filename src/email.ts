@@ -82,10 +82,10 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
         `<table border="0" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:separate;border:1px solid ${CARD_BORDER};border-radius:8px;overflow:hidden;${FONT}">`
       );
       parts.push(
-        `<tr><td style="${FONT}background:${CARD_HEAD_BG};font-weight:bold;text-align:center;padding:6px 8px;border-bottom:1px solid ${CARD_BORDER}">${esc(group.label)}</td></tr>`
+        `<tr><td style="${FONT}background:${CARD_HEAD_BG};font-weight:bold;font-size:15pt;text-align:center;padding:8px 8px;border-bottom:1px solid ${CARD_BORDER}">${esc(group.label)}</td></tr>`
       );
       parts.push(
-        `<tr><td style="${FONT}padding:8px 10px">` +
+        `<tr><td style="${FONT}padding:8px 10px;text-align:center">` +
           group.roles.map((role) => `<div style="${FONT}padding:1px 0">${esc(role)}</div>`).join("") +
           `</td></tr>`
       );
