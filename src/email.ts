@@ -58,10 +58,37 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
   }
 
   if (plan.callTimes.length > 0) {
-    parts.push(`<p style="${FONT}"><b>${esc(plan.serviceName.split(" ")[0])} ${esc(plan.teamGreetingName)}:</b></p>`);
-    for (const ct of plan.callTimes) {
-      parts.push(`<p style="${FONT}"><span style="${FONT}color:red;font-weight:bold">${esc(displayTimeWithMeridiem(ct.time))}</span>&nbsp;&nbsp;${esc(ct.label)}</p>`);
+    const CALL_GREEN = "#16a34a";
+    const CALL_TINT = "#eafbf1";
+    parts.push(`<p style="${FONT}"><b>${esc(plan.serviceName.split(" ")[0])} ${esc(plan.teamGreetingName)} &mdash; Reporting Times</b></p>`);
+    parts.push(`<table ${TABLE_STYLE}>`);
+    parts.push(
+      `<tr><th style="${FONT}background:${CALL_GREEN};color:#ffffff;font-weight:bold;width:20%">Time</th><th style="${FONT}background:${CALL_GREEN};color:#ffffff;font-weight:bold">Team / Role</th></tr>`
+    );
+    // Group consecutive call times that share the same displayed time under one rowspan,
+    // so everyone reporting together reads as one block instead of a repeated timestamp.
+    let i = 0;
+    let groupIndex = 0;
+    while (i < plan.callTimes.length) {
+      const label = displayTimeWithMeridiem(plan.callTimes[i].time);
+      let j = i;
+      while (j < plan.callTimes.length && displayTimeWithMeridiem(plan.callTimes[j].time) === label) j++;
+      const groupSize = j - i;
+      const shade = groupIndex % 2 === 0 ? CALL_TINT : "#ffffff";
+      for (let k = i; k < j; k++) {
+        const cells: string[] = [];
+        if (k === i) {
+          cells.push(
+            `<td rowspan="${groupSize}" style="${FONT}background:${shade};text-align:center;font-weight:bold;color:${CALL_GREEN};vertical-align:middle">${esc(label)}</td>`
+          );
+        }
+        cells.push(`<td style="${FONT}background:${shade}">${esc(plan.callTimes[k].label)}</td>`);
+        parts.push(`<tr>${cells.join("")}</tr>`);
+      }
+      groupIndex++;
+      i = j;
     }
+    parts.push(`</table>`);
     parts.push(`<p style="${FONT}">&nbsp;</p>`);
   }
 
