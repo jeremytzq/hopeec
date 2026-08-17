@@ -58,36 +58,40 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
   }
 
   if (plan.callTimes.length > 0) {
-    const CALL_GREEN = "#16a34a";
-    const CALL_TINT = "#eafbf1";
-    const CALL_BORDER = "#bfe8cd";
+    const CARD_BORDER = "#cccccc";
+    const CARD_HEAD_BG = "#f2f2f2";
     parts.push(`<p style="${FONT}"><b>${esc(plan.serviceName.split(" ")[0])} ${esc(plan.teamGreetingName)} &mdash; Reporting Times</b></p>`);
 
-    // One "card" per distinct call time: a big bold time banner, with every role
-    // reporting at that time listed underneath it, so the time reads at a glance
-    // and the roster of who's due follows below rather than repeating per row.
+    // Group consecutive call times sharing the same displayed time into one card,
+    // then lay all cards out side by side in a single row of small rounded boxes.
+    const groups: { label: string; roles: string[] }[] = [];
     let i = 0;
     while (i < plan.callTimes.length) {
       const label = displayTimeWithMeridiem(plan.callTimes[i].time);
       let j = i;
       while (j < plan.callTimes.length && displayTimeWithMeridiem(plan.callTimes[j].time) === label) j++;
-      const roles = plan.callTimes.slice(i, j).map((ct) => ct.label);
-
-      parts.push(
-        `<table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;margin:0 0 10px 0;${FONT}">`
-      );
-      parts.push(
-        `<tr><td style="${FONT}background:${CALL_GREEN};color:#ffffff;font-weight:bold;font-size:16pt;text-align:center;padding:8px 12px;border:1px solid ${CALL_GREEN};">${esc(label)}</td></tr>`
-      );
-      parts.push(
-        `<tr><td style="${FONT}background:${CALL_TINT};border:1px solid ${CALL_BORDER};border-top:none;padding:10px 16px;">` +
-          `<ul style="${FONT}margin:0;padding:0 0 0 18px;">` +
-          roles.map((role) => `<li style="${FONT}padding:2px 0">${esc(role)}</li>`).join("") +
-          `</ul></td></tr>`
-      );
-      parts.push(`</table>`);
+      groups.push({ label, roles: plan.callTimes.slice(i, j).map((ct) => ct.label) });
       i = j;
     }
+
+    const cardWidth = (100 / groups.length).toFixed(2);
+    parts.push(`<table border="0" cellspacing="0" cellpadding="0" style="border-collapse:separate;border-spacing:8px 0;width:100%;${FONT}"><tr>`);
+    for (const group of groups) {
+      parts.push(`<td style="width:${cardWidth}%;vertical-align:top;padding:0">`);
+      parts.push(
+        `<table border="0" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:separate;border:1px solid ${CARD_BORDER};border-radius:8px;overflow:hidden;${FONT}">`
+      );
+      parts.push(
+        `<tr><td style="${FONT}background:${CARD_HEAD_BG};font-weight:bold;text-align:center;padding:6px 8px;border-bottom:1px solid ${CARD_BORDER}">${esc(group.label)}</td></tr>`
+      );
+      parts.push(
+        `<tr><td style="${FONT}padding:8px 10px">` +
+          group.roles.map((role) => `<div style="${FONT}padding:1px 0">${esc(role)}</div>`).join("") +
+          `</td></tr>`
+      );
+      parts.push(`</table></td>`);
+    }
+    parts.push(`</tr></table>`);
     parts.push(`<p style="${FONT}">&nbsp;</p>`);
   }
 
