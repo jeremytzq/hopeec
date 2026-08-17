@@ -60,35 +60,34 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
   if (plan.callTimes.length > 0) {
     const CALL_GREEN = "#16a34a";
     const CALL_TINT = "#eafbf1";
+    const CALL_BORDER = "#bfe8cd";
     parts.push(`<p style="${FONT}"><b>${esc(plan.serviceName.split(" ")[0])} ${esc(plan.teamGreetingName)} &mdash; Reporting Times</b></p>`);
-    parts.push(`<table ${TABLE_STYLE}>`);
-    parts.push(
-      `<tr><th style="${FONT}background:${CALL_GREEN};color:#ffffff;font-weight:bold;width:20%">Time</th><th style="${FONT}background:${CALL_GREEN};color:#ffffff;font-weight:bold">Team / Role</th></tr>`
-    );
-    // Group consecutive call times that share the same displayed time under one rowspan,
-    // so everyone reporting together reads as one block instead of a repeated timestamp.
+
+    // One "card" per distinct call time: a big bold time banner, with every role
+    // reporting at that time listed underneath it, so the time reads at a glance
+    // and the roster of who's due follows below rather than repeating per row.
     let i = 0;
-    let groupIndex = 0;
     while (i < plan.callTimes.length) {
       const label = displayTimeWithMeridiem(plan.callTimes[i].time);
       let j = i;
       while (j < plan.callTimes.length && displayTimeWithMeridiem(plan.callTimes[j].time) === label) j++;
-      const groupSize = j - i;
-      const shade = groupIndex % 2 === 0 ? CALL_TINT : "#ffffff";
-      for (let k = i; k < j; k++) {
-        const cells: string[] = [];
-        if (k === i) {
-          cells.push(
-            `<td rowspan="${groupSize}" style="${FONT}background:${shade};text-align:center;font-weight:bold;color:${CALL_GREEN};vertical-align:middle">${esc(label)}</td>`
-          );
-        }
-        cells.push(`<td style="${FONT}background:${shade}">${esc(plan.callTimes[k].label)}</td>`);
-        parts.push(`<tr>${cells.join("")}</tr>`);
-      }
-      groupIndex++;
+      const roles = plan.callTimes.slice(i, j).map((ct) => ct.label);
+
+      parts.push(
+        `<table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;margin:0 0 10px 0;${FONT}">`
+      );
+      parts.push(
+        `<tr><td style="${FONT}background:${CALL_GREEN};color:#ffffff;font-weight:bold;font-size:16pt;text-align:center;padding:8px 12px;border:1px solid ${CALL_GREEN};">${esc(label)}</td></tr>`
+      );
+      parts.push(
+        `<tr><td style="${FONT}background:${CALL_TINT};border:1px solid ${CALL_BORDER};border-top:none;padding:10px 16px;">` +
+          `<ul style="${FONT}margin:0;padding:0 0 0 18px;">` +
+          roles.map((role) => `<li style="${FONT}padding:2px 0">${esc(role)}</li>`).join("") +
+          `</ul></td></tr>`
+      );
+      parts.push(`</table>`);
       i = j;
     }
-    parts.push(`</table>`);
     parts.push(`<p style="${FONT}">&nbsp;</p>`);
   }
 
