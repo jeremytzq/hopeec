@@ -19,7 +19,7 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
   parts.push(`<p style="${FONT}">Hi ${esc(plan.teamGreetingName)},</p>`);
   parts.push(`<p style="${FONT}">&nbsp;</p>`);
   if (plan.introNote) {
-    parts.push(`<p style="${FONT}"><b>${esc(plan.introNote)}</b></p>`);
+    parts.push(`<p style="${FONT}"><b>${esc(plan.introNote).replace(/\n/g, "<br/>")}</b></p>`);
     parts.push(`<p style="${FONT}">&nbsp;</p>`);
   }
 
