@@ -12,6 +12,30 @@ type Props = {
 };
 
 const TRACKED_COMMANDS = ["bold", "italic", "underline", "insertUnorderedList", "insertOrderedList"];
+const HIGHLIGHT_COLOR = "#ffff00";
+const HIGHLIGHT_COMMAND = document.queryCommandSupported?.("hiliteColor") ? "hiliteColor" : "backColor";
+
+function isYellowish(colorValue: string): boolean {
+  return /255,\s*255,\s*0\)?$/.test(colorValue) || /^#?ffff00$/i.test(colorValue) || colorValue === "yellow";
+}
+
+// document.queryCommandValue("hiliteColor") is unreliable across browsers -
+// it returns "" even when the selection sits inside a highlighted span - so
+// detect the current highlight by walking up from the selection to the
+// editor root and checking for a yellow inline background-color directly.
+function isHighlightActive(editor: HTMLElement | null): boolean {
+  const sel = window.getSelection();
+  if (!editor || !sel || sel.rangeCount === 0 || !sel.anchorNode) return false;
+  let node: Node | null = sel.anchorNode;
+  while (node && node !== editor) {
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const bg = (node as HTMLElement).style?.backgroundColor;
+      if (bg && isYellowish(bg)) return true;
+    }
+    node = node.parentNode;
+  }
+  return false;
+}
 
 // Minimal WYSIWYG editor driven by document.execCommand. The div's innerHTML
 // is managed imperatively (not via React children/dangerouslySetInnerHTML)
@@ -51,6 +75,7 @@ export function RichTextEditor({ value, onChange, placeholder, compact }: Props)
           // queryCommandState can throw for unsupported commands in some browsers
         }
       }
+      if (isHighlightActive(editorRef.current)) next.add("highlight");
       setActive(next);
     }
     document.addEventListener("selectionchange", updateActive);
@@ -70,6 +95,17 @@ export function RichTextEditor({ value, onChange, placeholder, compact }: Props)
       document.execCommand(command, false, commandValue);
       emit();
     };
+  }
+
+  function toggleHighlight(e: React.MouseEvent) {
+    e.preventDefault();
+    editorRef.current?.focus();
+    // Check live DOM state at click time rather than trusting the `active`
+    // Set, which is refreshed by a selectionchange listener that can lag a
+    // fast select-then-click by a render.
+    const isOn = isHighlightActive(editorRef.current);
+    document.execCommand(HIGHLIGHT_COMMAND, false, isOn ? "transparent" : HIGHLIGHT_COLOR);
+    emit();
   }
 
   function toolbarButton(command: string, label: React.ReactNode, title: string) {
@@ -92,6 +128,14 @@ export function RichTextEditor({ value, onChange, placeholder, compact }: Props)
       {toolbarButton("bold", <b>B</b>, "Bold")}
       {toolbarButton("italic", <i>I</i>, "Italic")}
       {toolbarButton("underline", <u>U</u>, "Underline")}
+      <button
+        type="button"
+        onMouseDown={toggleHighlight}
+        title="Highlight"
+        className={active.has("highlight") ? "active rich-highlight-btn" : "rich-highlight-btn"}
+      >
+        &#9635;
+      </button>
       {!compact && (
         <>
           <span className="rich-toolbar-sep" />

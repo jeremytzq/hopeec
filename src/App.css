@@ -233,6 +233,13 @@ label.inline-check, .inline-check {
   color: #fff;
 }
 
+.rich-toolbar button.rich-highlight-btn { color: #b8860b; }
+.rich-toolbar button.rich-highlight-btn.active {
+  background: #ffff00;
+  border-color: #e6c200;
+  color: #4a3c00;
+}
+
 .rich-toolbar-sep {
   width: 1px;
   align-self: stretch;

@@ -3,10 +3,18 @@
 // (<b>/<i>/<u>/<ul><li>/<div>...) rather than plain strings.
 
 // Outlook's Word rendering engine doesn't reliably inherit font-family/size
-// into nested tags, so stamp the given font style onto every tag that
-// doesn't already carry one before dropping the HTML into an email.
+// into nested tags, so stamp the given font style onto every tag below. Tags
+// that already carry a style (e.g. a highlight <span style="background-color:...">
+// from the toolbar's highlight command) get the font declarations merged in
+// rather than skipped, so a highlighted run doesn't lose the app's font.
 export function styleRichText(html: string, font: string): string {
-  return html.replace(/<(div|p|li|ul|ol|b|i|u|strong|em)(?![^>]*style=)([^>]*)>/gi, `<$1 style="${font}"$2>`);
+  return html.replace(/<(div|p|li|ul|ol|b|i|u|strong|em|span|font)((?:\s+[^>]*)?)>/gi, (_match, tag, attrs) => {
+    const styleMatch = attrs.match(/style\s*=\s*"([^"]*)"/i);
+    if (styleMatch) {
+      return `<${tag}${attrs.replace(styleMatch[0], `style="${font}${styleMatch[1]}"`)}>`;
+    }
+    return `<${tag} style="${font}"${attrs}>`;
+  });
 }
 
 // Reduces rich-text HTML to readable plain text for contexts that can't
