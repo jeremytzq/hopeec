@@ -212,10 +212,14 @@ export default function PlannerTab({ plan, onChange, roster, ccList, onCcListCha
             placeholder="e.g. Everyone, please open the SERVICE BRIEF..."
           />
         </div>
-        <label>
-          Closing note
-          <textarea rows={2} value={plan.closingNote} onChange={(e) => set("closingNote", e.target.value)} />
-        </label>
+        <div className="field-label">
+          <span>Closing note</span>
+          <RichTextEditor
+            value={plan.closingNote}
+            onChange={(html) => set("closingNote", html)}
+            placeholder="e.g. Thank you all for your service this week!"
+          />
+        </div>
       </div>
 
       <h2 className="h-teams">Teams (for the email's per-team tables)</h2>

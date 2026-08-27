@@ -1,5 +1,6 @@
 import type { RosterPerson, WeeklyPlan } from "./types";
 import { chainTimes, displayTimeWithMeridiem } from "./utils/time";
+import { richTextToPlainText, styleRichText } from "./utils/richText";
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -11,12 +12,8 @@ function esc(s: string): string {
 const FONT = "font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#000000;";
 const TABLE_STYLE = `border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%;${FONT}"`;
 
-// The intro note comes from a contentEditable rich-text editor as raw HTML
-// (<b>/<i>/<u>/<ul><li>/<div>...). Stamp our font style onto every tag that
-// doesn't already carry one, same as everywhere else in this file, so Outlook
-// doesn't fall back to its own default font for the note.
-function styleRichText(html: string): string {
-  return html.replace(/<(div|p|li|ul|ol|b|i|u|strong|em)(?![^>]*style=)([^>]*)>/gi, `<$1 style="${FONT}"$2>`);
+function rich(html: string): string {
+  return styleRichText(html, FONT);
 }
 
 export function buildEmailHtml(plan: WeeklyPlan): string {
@@ -27,7 +24,7 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
   parts.push(`<p style="${FONT}">Hi ${esc(plan.teamGreetingName)},</p>`);
   parts.push(`<p style="${FONT}">&nbsp;</p>`);
   if (plan.introNote && plan.introNote !== "<br>") {
-    parts.push(`<div style="${FONT}">${styleRichText(plan.introNote)}</div>`);
+    parts.push(`<div style="${FONT}">${rich(plan.introNote)}</div>`);
     parts.push(`<p style="${FONT}">&nbsp;</p>`);
   }
 
@@ -54,7 +51,7 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
       `<tr><th style="${FONT}background:#f2f2f2;font-weight:bold">Services</th><th style="${FONT}background:#f2f2f2;font-weight:bold">Programme</th><th style="${FONT}background:#f2f2f2;font-weight:bold">Action Required</th></tr>`
     );
     rows.forEach((r, i) => {
-      const cells = [`<td style="${FONT}">${esc(r.seg.program)}</td>`, `<td style="${FONT}">${esc(r.assignment!.action)}</td>`];
+      const cells = [`<td style="${FONT}">${esc(r.seg.program)}</td>`, `<td style="${FONT}">${rich(r.assignment!.action)}</td>`];
       if (i === 0) {
         parts.push(`<tr><td rowspan="${rows.length}" style="${FONT}text-align:center;font-weight:bold">${startLabel}</td>${cells.join("")}</tr>`);
       } else {
@@ -103,8 +100,8 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
     parts.push(`<p style="${FONT}">&nbsp;</p>`);
   }
 
-  if (plan.closingNote) {
-    parts.push(`<p style="${FONT}">${esc(plan.closingNote).replace(/\n/g, "<br/>")}</p>`);
+  if (plan.closingNote && plan.closingNote !== "<br>") {
+    parts.push(`<div style="${FONT}">${rich(plan.closingNote)}</div>`);
   }
 
   return parts.join("\n");
@@ -121,7 +118,7 @@ export function buildRecipientsString(plan: WeeklyPlan, roster: RosterPerson[]):
 
 export async function copyEmailToClipboard(plan: WeeklyPlan): Promise<void> {
   const html = buildEmailHtml(plan);
-  const plain = html.replace(/<br\s*\/?>/g, "\n").replace(/<[^>]+>/g, "");
+  const plain = richTextToPlainText(html);
   const item = new ClipboardItem({
     "text/html": new Blob([html], { type: "text/html" }),
     "text/plain": new Blob([plain], { type: "text/plain" }),

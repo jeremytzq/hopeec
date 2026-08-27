@@ -3,7 +3,7 @@ import { deriveShortServiceName, formatLongDate } from "./utils/time";
 export type TeamAssignment = {
   id: string;
   team: string;
-  action: string;
+  action: string; // rich-text HTML from the compact action editor
 };
 
 export type Segment = {
@@ -53,7 +53,7 @@ export type WeeklyPlan = {
   callTimes: CallTimeItem[];
   teams: string[]; // ordered team names to render as sections in email
   recipientIds: string[];
-  closingNote: string;
+  closingNote: string; // rich-text HTML from the closing note editor
 };
 
 export const DEFAULT_TEAMS = ["Service Leaders", "SM and MM Teams"];

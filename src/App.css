@@ -259,6 +259,31 @@ label.inline-check, .inline-check {
 .rich-text-editable ul, .rich-text-editable ol { margin: 4px 0 4px 20px; padding: 0; }
 .rich-text-editable li { margin: 2px 0; }
 
+.rich-text-compact {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  overflow: hidden;
+}
+
+.rich-text-compact .rich-text-editable {
+  min-height: unset;
+  padding: 7px 10px;
+  font-size: var(--fs-base);
+}
+
+/* Shown below the field only while it's focused, in normal document flow -
+   deliberately not position:absolute: table cells paint their own opaque
+   backgrounds over content that visually escapes a <td>'s box, so a floating
+   overlay above/over the row gets covered by neighboring cells and becomes
+   unclickable. Growing the row's height while editing avoids that entirely. */
+.rich-toolbar-floating {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.assignment-row .rich-text-compact { flex: 1 1 auto; width: auto; min-width: 120px; }
+
 input, select, textarea {
   font-family: inherit;
   font-size: var(--fs-base);

@@ -1,6 +1,7 @@
 import type { Segment, TeamAssignment } from "../types";
 import { uid } from "../types";
 import { chainTimes, displayTime } from "../utils/time";
+import { RichTextEditor } from "./RichTextEditor";
 
 type Props = {
   segments: Segment[];
@@ -105,10 +106,11 @@ export default function SegmentsEditor({ segments, startTime, teams, onChange, o
                           <option key={t} value={t}>{t}</option>
                         ))}
                       </select>
-                      <input
+                      <RichTextEditor
+                        compact
                         placeholder="Action required"
                         value={a.action}
-                        onChange={(e) => updateAssignment(seg.id, a.id, { action: e.target.value })}
+                        onChange={(html) => updateAssignment(seg.id, a.id, { action: html })}
                       />
                       <button type="button" className="danger small" onClick={() => removeAssignment(seg.id, a.id)}>✕</button>
                     </div>

@@ -34,6 +34,16 @@ export function saveCcList(ccList: CcPerson[]): void {
   localStorage.setItem(CC_LIST_KEY, JSON.stringify(ccList));
 }
 
+const isPlainText = (s: string) => !/<[a-z][\s\S]*>/i.test(s);
+
+function escapeToHtml(text: string): string {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>");
+}
+
 // Before the rich-text intro note editor, introNote was plain text (often
 // hand-wrapped in "**...**" for emphasis) rendered fully bold. Detect that
 // shape - no HTML tags - and convert it once into the equivalent HTML so
@@ -41,12 +51,7 @@ export function saveCcList(ccList: CcPerson[]): void {
 function migrateIntroNote(text: string): string {
   let body = text.trim();
   if (body.startsWith("**") && body.endsWith("**")) body = body.slice(2, -2);
-  const escaped = body
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\n/g, "<br>");
-  return `<b>${escaped}</b>`;
+  return `<b>${escapeToHtml(body)}</b>`;
 }
 
 export function loadPlans(): Record<string, WeeklyPlan> {
@@ -58,9 +63,19 @@ export function loadPlans(): Record<string, WeeklyPlan> {
       if (!plan.emailSubject) {
         plan.emailSubject = `[${deriveShortServiceName(plan.serviceName)}] Service Brief for ${formatLongDate(plan.date)}`;
       }
-      // Backfills plans saved before introNote became rich-text HTML.
-      if (plan.introNote && !/<[a-z][\s\S]*>/i.test(plan.introNote)) {
+      // Backfills plans saved before introNote/closingNote/action fields became rich-text HTML.
+      if (plan.introNote && isPlainText(plan.introNote)) {
         plan.introNote = migrateIntroNote(plan.introNote);
+      }
+      if (plan.closingNote && isPlainText(plan.closingNote)) {
+        plan.closingNote = escapeToHtml(plan.closingNote);
+      }
+      for (const seg of plan.segments || []) {
+        for (const a of seg.assignments || []) {
+          if (a.action && isPlainText(a.action)) {
+            a.action = escapeToHtml(a.action);
+          }
+        }
       }
     }
     return plans;

@@ -1,4 +1,5 @@
 import type { WeeklyPlan } from "./types";
+import { richTextToPlainText } from "./utils/richText";
 
 // The order of service itself is sent as a table screenshot (see screenshot.ts)
 // rather than typed out here, since WhatsApp doesn't render tab/column alignment.
@@ -13,7 +14,7 @@ export function buildPastorSummary(plan: WeeklyPlan): string {
   lines.push("(Program attached as an image)");
   if (plan.closingNote) {
     lines.push("");
-    lines.push(plan.closingNote);
+    lines.push(richTextToPlainText(plan.closingNote));
   }
   lines.push("");
   lines.push("Thank you!");
