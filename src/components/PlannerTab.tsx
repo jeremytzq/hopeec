@@ -7,6 +7,7 @@ import SegmentsEditor from "./SegmentsEditor";
 import RehearsalEditor from "./RehearsalEditor";
 import CallTimesEditor from "./CallTimesEditor";
 import RecipientsPicker from "./RecipientsPicker";
+import { RichTextEditor } from "./RichTextEditor";
 import { downloadServiceBriefPdf } from "../pdf";
 import { buildEmailHtml, buildRecipientsString, copyEmailToClipboard } from "../email";
 import { buildPastorSummary, copyToClipboardText } from "../whatsapp";
@@ -203,10 +204,14 @@ export default function PlannerTab({ plan, onChange, roster, ccList, onCcListCha
             <input value={plan.speaker} onChange={(e) => set("speaker", e.target.value)} />
           </label>
         </div>
-        <label>
-          Intro note (bold instruction line in the email)
-          <textarea rows={4} value={plan.introNote} onChange={(e) => set("introNote", e.target.value)} />
-        </label>
+        <div className="field-label">
+          <span>Intro note (instruction line in the email)</span>
+          <RichTextEditor
+            value={plan.introNote}
+            onChange={(html) => set("introNote", html)}
+            placeholder="e.g. Everyone, please open the SERVICE BRIEF..."
+          />
+        </div>
         <label>
           Closing note
           <textarea rows={2} value={plan.closingNote} onChange={(e) => set("closingNote", e.target.value)} />

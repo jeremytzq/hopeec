@@ -34,14 +34,33 @@ export function saveCcList(ccList: CcPerson[]): void {
   localStorage.setItem(CC_LIST_KEY, JSON.stringify(ccList));
 }
 
+// Before the rich-text intro note editor, introNote was plain text (often
+// hand-wrapped in "**...**" for emphasis) rendered fully bold. Detect that
+// shape - no HTML tags - and convert it once into the equivalent HTML so
+// old plans keep looking the same in the rich-text editor and the email.
+function migrateIntroNote(text: string): string {
+  let body = text.trim();
+  if (body.startsWith("**") && body.endsWith("**")) body = body.slice(2, -2);
+  const escaped = body
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/\n/g, "<br>");
+  return `<b>${escaped}</b>`;
+}
+
 export function loadPlans(): Record<string, WeeklyPlan> {
   try {
     const raw = localStorage.getItem(PLANS_KEY);
     const plans: Record<string, WeeklyPlan> = raw ? JSON.parse(raw) : {};
-    // Backfills plans saved before the emailSubject field existed.
     for (const plan of Object.values(plans)) {
+      // Backfills plans saved before the emailSubject field existed.
       if (!plan.emailSubject) {
         plan.emailSubject = `[${deriveShortServiceName(plan.serviceName)}] Service Brief for ${formatLongDate(plan.date)}`;
+      }
+      // Backfills plans saved before introNote became rich-text HTML.
+      if (plan.introNote && !/<[a-z][\s\S]*>/i.test(plan.introNote)) {
+        plan.introNote = migrateIntroNote(plan.introNote);
       }
     }
     return plans;

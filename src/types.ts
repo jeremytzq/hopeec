@@ -44,7 +44,7 @@ export type WeeklyPlan = {
   sermonTitle: string;
   speaker: string;
   holyCommunion: boolean;
-  introNote: string;
+  introNote: string; // rich-text HTML from the intro note editor (bold/italic/underline/lists)
   serviceClockTime: string; // "09:30" - the public service time shown in the email's "Services" column
   startTime: string; // "09:00" - when the pre-service order of service actually begins (for chaining)
   segments: Segment[];
@@ -86,7 +86,7 @@ export function blankPlan(date: string): WeeklyPlan {
     speaker: "",
     holyCommunion: false,
     introNote:
-      "**Everyone, please open the SERVICE BRIEF to read through the Service Program and this email thoroughly. Thank you for your spirit of excellence in thorough preparation.**",
+      "<b>Everyone, please open the SERVICE BRIEF to read through the Service Program and this email thoroughly. Thank you for your spirit of excellence in thorough preparation.</b>",
     serviceClockTime: "09:30",
     startTime: "09:00",
     segments: [],

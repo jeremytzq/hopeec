@@ -11,6 +11,14 @@ function esc(s: string): string {
 const FONT = "font-family:Calibri,Arial,sans-serif;font-size:11pt;color:#000000;";
 const TABLE_STYLE = `border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%;${FONT}"`;
 
+// The intro note comes from a contentEditable rich-text editor as raw HTML
+// (<b>/<i>/<u>/<ul><li>/<div>...). Stamp our font style onto every tag that
+// doesn't already carry one, same as everywhere else in this file, so Outlook
+// doesn't fall back to its own default font for the note.
+function styleRichText(html: string): string {
+  return html.replace(/<(div|p|li|ul|ol|b|i|u|strong|em)(?![^>]*style=)([^>]*)>/gi, `<$1 style="${FONT}"$2>`);
+}
+
 export function buildEmailHtml(plan: WeeklyPlan): string {
   const { times: segTimes } = chainTimes(plan.startTime, plan.segments);
   const startLabel = displayTimeWithMeridiem(plan.serviceClockTime || plan.startTime).replace(" ", "");
@@ -18,8 +26,8 @@ export function buildEmailHtml(plan: WeeklyPlan): string {
   const parts: string[] = [];
   parts.push(`<p style="${FONT}">Hi ${esc(plan.teamGreetingName)},</p>`);
   parts.push(`<p style="${FONT}">&nbsp;</p>`);
-  if (plan.introNote) {
-    parts.push(`<p style="${FONT}"><b>${esc(plan.introNote).replace(/\n/g, "<br/>")}</b></p>`);
+  if (plan.introNote && plan.introNote !== "<br>") {
+    parts.push(`<div style="${FONT}">${styleRichText(plan.introNote)}</div>`);
     parts.push(`<p style="${FONT}">&nbsp;</p>`);
   }
 

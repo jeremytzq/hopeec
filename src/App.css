@@ -193,6 +193,72 @@ label.inline-check, .inline-check {
 
 .inline-check.small { font-size: var(--fs-xs); white-space: nowrap; }
 
+.field-label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.rich-text {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: #fff;
+  overflow: hidden;
+}
+
+.rich-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 6px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.rich-toolbar button {
+  padding: 4px 9px;
+  font-size: var(--fs-sm);
+  border-radius: 5px;
+  background: #fff;
+  min-width: 28px;
+}
+
+.rich-toolbar button.active {
+  background: var(--accent, #2f6fed);
+  border-color: var(--accent, #2f6fed);
+  color: #fff;
+}
+
+.rich-toolbar-sep {
+  width: 1px;
+  align-self: stretch;
+  background: var(--border);
+  margin: 2px 3px;
+}
+
+.rich-text-editable {
+  min-height: 78px;
+  padding: 9px 11px;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-normal);
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.rich-text-editable:focus { outline: none; box-shadow: inset 0 0 0 2px rgba(47,111,237,0.14); }
+
+.rich-text-editable:empty::before {
+  content: attr(data-placeholder);
+  color: #9aa0ab;
+}
+
+.rich-text-editable ul, .rich-text-editable ol { margin: 4px 0 4px 20px; padding: 0; }
+.rich-text-editable li { margin: 2px 0; }
+
 input, select, textarea {
   font-family: inherit;
   font-size: var(--fs-base);
