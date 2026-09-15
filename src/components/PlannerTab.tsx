@@ -23,10 +23,12 @@ type Props = {
   allDates: string[];
   onLoadDate: (date: string) => void;
   onDuplicateFrom: (sourceDate: string) => void;
+  onSave: () => void;
 };
 
-export default function PlannerTab({ plan, onChange, roster, ccList, onCcListChange, allDates, onLoadDate, onDuplicateFrom }: Props) {
+export default function PlannerTab({ plan, onChange, roster, ccList, onCcListChange, allDates, onLoadDate, onDuplicateFrom, onSave }: Props) {
   const [copyStatus, setCopyStatus] = useState("");
+  const [saveStatus, setSaveStatus] = useState("");
   const [newTeam, setNewTeam] = useState("");
 
   function set<K extends keyof WeeklyPlan>(key: K, value: WeeklyPlan[K]) {
@@ -50,6 +52,12 @@ export default function PlannerTab({ plan, onChange, roster, ccList, onCcListCha
   const emailHtml = useMemo(() => buildEmailHtml(plan), [plan]);
   const recipientsString = useMemo(() => buildRecipientsString(plan, roster), [plan, roster]);
   const pastorSummary = useMemo(() => buildPastorSummary(plan), [plan]);
+
+  function handleSave() {
+    onSave();
+    setSaveStatus(`Saved — "${plan.serviceName}" for ${plan.date}.`);
+    setTimeout(() => setSaveStatus(""), 4000);
+  }
 
   function handleLoadDefault() {
     const hasContent = plan.segments.length > 0 || plan.rehearsal.length > 0 || plan.callTimes.length > 0;
@@ -171,7 +179,12 @@ export default function PlannerTab({ plan, onChange, roster, ccList, onCcListCha
             &nbsp;
             <button type="button" onClick={handleLoadDefault}>Load default program</button>
           </label>
+          <label>
+            &nbsp;
+            <button type="button" className="primary" onClick={handleSave}>Save this week's plan</button>
+          </label>
         </div>
+        {saveStatus && <p className="status">{saveStatus}</p>}
       </div>
 
       <h2 className="h-details">Service details</h2>

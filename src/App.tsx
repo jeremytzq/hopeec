@@ -20,22 +20,17 @@ function App() {
   const [roster, setRoster] = useState<RosterPerson[]>(() => loadRoster());
   const [ccList, setCcList] = useState<CcPerson[]>(() => loadCcList());
   const [plansById, setPlansById] = useState<Record<string, WeeklyPlan>>(() => loadPlans());
-  const [plan, setPlan] = useState<WeeklyPlan>(() => {
-    const plans = loadPlans();
-    const dates = Object.keys(plans).sort();
-    const latest = dates[dates.length - 1];
-    return latest ? plans[latest] : newPlanForDate(nextSunday());
-  });
+  const [plan, setPlan] = useState<WeeklyPlan>(() => newPlanForDate(nextSunday()));
 
   useEffect(() => saveRoster(roster), [roster]);
   useEffect(() => saveCcList(ccList), [ccList]);
 
-  useEffect(() => {
+  const allDates = useMemo(() => Object.keys(plansById).sort(), [plansById]);
+
+  function handleSave() {
     savePlan(plan);
     setPlansById((prev) => ({ ...prev, [plan.id]: plan }));
-  }, [plan]);
-
-  const allDates = useMemo(() => Object.keys(plansById).sort(), [plansById]);
+  }
 
   function handleLoadDate(date: string) {
     const existing = plansById[date];
@@ -81,6 +76,7 @@ function App() {
             allDates={allDates}
             onLoadDate={handleLoadDate}
             onDuplicateFrom={handleDuplicateFrom}
+            onSave={handleSave}
           />
         )}
         {tab === "roster" && <RosterTab roster={roster} onChange={setRoster} />}
