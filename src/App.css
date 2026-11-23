@@ -352,6 +352,19 @@ button.link:hover { color: var(--accent-dark); text-decoration: underline; }
   display: inline-block;
 }
 
+.status.error {
+  color: #b42318;
+  background: #fef3f2;
+  border-color: #fecdca;
+}
+
+.loading-placeholder {
+  color: var(--muted);
+  font-size: var(--fs-base);
+  padding: 40px 0;
+  text-align: center;
+}
+
 .simple-table {
   width: 100%;
   border-collapse: separate;

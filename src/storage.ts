@@ -7,39 +7,71 @@ const ROSTER_KEY = "hopeec.roster.v1";
 const PLANS_KEY = "hopeec.plans.v1";
 const CC_LIST_KEY = "hopeec.ccList.v1";
 
-export function loadRoster(): RosterPerson[] {
+function readLocalArray<T>(key: string): T[] {
   try {
-    const raw = localStorage.getItem(ROSTER_KEY);
+    const raw = localStorage.getItem(key);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
 }
 
-export function saveRoster(roster: RosterPerson[]): void {
-  localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
-}
-
-// Seeded from DEFAULT_CC_PEOPLE the first time; edits persist from there on.
-export function loadCcList(): CcPerson[] {
+// Shared, no-login cloud store (see api/*.ts): every browser reads/writes the
+// same data, with localStorage kept only as a write-through cache so the app
+// still works - read-only, from whatever was last fetched - if the network or
+// the cloud store is unavailable.
+export async function loadRoster(): Promise<RosterPerson[]> {
   try {
-    const raw = localStorage.getItem(CC_LIST_KEY);
-    return raw ? JSON.parse(raw) : DEFAULT_CC_PEOPLE;
+    const res = await fetch("/api/roster");
+    if (!res.ok) throw new Error(`GET /api/roster failed (${res.status})`);
+    const { roster } = await res.json();
+    localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
+    return roster;
   } catch {
-    return DEFAULT_CC_PEOPLE;
+    return readLocalArray<RosterPerson>(ROSTER_KEY);
   }
 }
 
-export function saveCcList(ccList: CcPerson[]): void {
+export async function saveRoster(roster: RosterPerson[]): Promise<void> {
+  localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
+  const res = await fetch("/api/roster", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ roster }),
+  });
+  if (!res.ok) throw new Error("Failed to save roster to the cloud.");
+}
+
+// Seeded from DEFAULT_CC_PEOPLE the first time; edits persist from there on.
+export async function loadCcList(): Promise<CcPerson[]> {
+  try {
+    const res = await fetch("/api/cc-list");
+    if (!res.ok) throw new Error(`GET /api/cc-list failed (${res.status})`);
+    const { ccList } = await res.json();
+    const list = ccList.length > 0 ? ccList : DEFAULT_CC_PEOPLE;
+    localStorage.setItem(CC_LIST_KEY, JSON.stringify(list));
+    return list;
+  } catch {
+    const cached = readLocalArray<CcPerson>(CC_LIST_KEY);
+    return cached.length > 0 ? cached : DEFAULT_CC_PEOPLE;
+  }
+}
+
+export async function saveCcList(ccList: CcPerson[]): Promise<void> {
   localStorage.setItem(CC_LIST_KEY, JSON.stringify(ccList));
+  const res = await fetch("/api/cc-list", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ccList }),
+  });
+  if (!res.ok) throw new Error("Failed to save CC list to the cloud.");
 }
 
 // A string counts as "already migrated" if it has an HTML tag, OR already
 // contains an HTML entity (&amp; &lt; etc) - the latter check matters because
 // escapeToHtml() itself produces entities with no tags, and without it a
 // plain-text field with an ampersand would get re-escaped every single time
-// loadPlans() runs (which happens on every savePlan(), i.e. on every edit),
-// doubling "&" into "&amp;amp;amp;..." within a few keystrokes.
+// loadPlans() runs, doubling "&" into "&amp;amp;amp;..." within a few saves.
 const isPlainText = (s: string) => !/<[a-z][\s\S]*>/i.test(s) && !/&(?:amp|lt|gt|nbsp|#\d+|#x[0-9a-f]+);/i.test(s);
 
 function escapeToHtml(text: string): string {
@@ -69,56 +101,91 @@ function migrateIntroNote(text: string): string {
   return `<b>${escapeToHtml(body)}</b>`;
 }
 
-export function loadPlans(): Record<string, WeeklyPlan> {
-  try {
-    const raw = localStorage.getItem(PLANS_KEY);
-    const plans: Record<string, WeeklyPlan> = raw ? JSON.parse(raw) : {};
-    for (const plan of Object.values(plans)) {
-      // Backfills plans saved before the emailSubject field existed.
-      if (!plan.emailSubject) {
-        plan.emailSubject = `[${deriveShortServiceName(plan.serviceName)}] Service Brief for ${formatLongDate(plan.date)}`;
-      }
-      // Backfills plans saved before introNote/closingNote/action fields became rich-text HTML.
-      if (plan.introNote && isPlainText(plan.introNote)) {
-        plan.introNote = migrateIntroNote(plan.introNote);
-      } else if (plan.introNote) {
-        plan.introNote = repairDoubleEscapedAmp(plan.introNote);
-      }
-      if (plan.closingNote && isPlainText(plan.closingNote)) {
-        plan.closingNote = escapeToHtml(plan.closingNote);
-      } else if (plan.closingNote) {
-        plan.closingNote = repairDoubleEscapedAmp(plan.closingNote);
-      }
-      for (const seg of plan.segments || []) {
-        for (const a of seg.assignments || []) {
-          if (a.action && isPlainText(a.action)) {
-            a.action = escapeToHtml(a.action);
-          } else if (a.action) {
-            a.action = repairDoubleEscapedAmp(a.action);
-          }
+// Runs the one-time field migrations/repairs over a freshly-loaded plans
+// object, in place. Pulled out of loadPlans() so it applies identically
+// whether the raw data came from the cloud or the localStorage fallback.
+function migratePlansInPlace(plans: Record<string, WeeklyPlan>): Record<string, WeeklyPlan> {
+  for (const plan of Object.values(plans)) {
+    // Backfills plans saved before the emailSubject field existed.
+    if (!plan.emailSubject) {
+      plan.emailSubject = `[${deriveShortServiceName(plan.serviceName)}] Service Brief for ${formatLongDate(plan.date)}`;
+    }
+    // Backfills plans saved before introNote/closingNote/action fields became rich-text HTML.
+    if (plan.introNote && isPlainText(plan.introNote)) {
+      plan.introNote = migrateIntroNote(plan.introNote);
+    } else if (plan.introNote) {
+      plan.introNote = repairDoubleEscapedAmp(plan.introNote);
+    }
+    if (plan.closingNote && isPlainText(plan.closingNote)) {
+      plan.closingNote = escapeToHtml(plan.closingNote);
+    } else if (plan.closingNote) {
+      plan.closingNote = repairDoubleEscapedAmp(plan.closingNote);
+    }
+    for (const seg of plan.segments || []) {
+      for (const a of seg.assignments || []) {
+        if (a.action && isPlainText(a.action)) {
+          a.action = escapeToHtml(a.action);
+        } else if (a.action) {
+          a.action = repairDoubleEscapedAmp(a.action);
         }
       }
     }
-    return plans;
+  }
+  return plans;
+}
+
+function readLocalPlansRaw(): Record<string, WeeklyPlan> {
+  try {
+    const raw = localStorage.getItem(PLANS_KEY);
+    return raw ? JSON.parse(raw) : {};
   } catch {
     return {};
   }
 }
 
-export function savePlan(plan: WeeklyPlan): void {
-  const plans = loadPlans();
-  plans[plan.id] = plan;
-  localStorage.setItem(PLANS_KEY, JSON.stringify(plans));
+export async function loadPlans(): Promise<Record<string, WeeklyPlan>> {
+  try {
+    const res = await fetch("/api/plans");
+    if (!res.ok) throw new Error(`GET /api/plans failed (${res.status})`);
+    const { plans } = await res.json();
+    // Cache the raw (pre-migration) shape, matching what's actually stored.
+    localStorage.setItem(PLANS_KEY, JSON.stringify(plans));
+    return migratePlansInPlace(plans);
+  } catch {
+    return migratePlansInPlace(readLocalPlansRaw());
+  }
 }
 
-export function deletePlan(id: string): void {
-  const plans = loadPlans();
-  delete plans[id];
-  localStorage.setItem(PLANS_KEY, JSON.stringify(plans));
+export async function savePlan(plan: WeeklyPlan): Promise<void> {
+  const res = await fetch("/api/plans", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ plan }),
+  });
+  if (!res.ok) throw new Error("Failed to save this week's plan to the cloud.");
+  try {
+    const raw = readLocalPlansRaw();
+    raw[plan.id] = plan;
+    localStorage.setItem(PLANS_KEY, JSON.stringify(raw));
+  } catch {
+    // Local cache write is best-effort only - the cloud save above already succeeded.
+  }
 }
 
-export function mostRecentPlan(beforeDate?: string): WeeklyPlan | undefined {
-  const plans = Object.values(loadPlans()).sort((a, b) => a.date.localeCompare(b.date));
+export async function deletePlan(id: string): Promise<void> {
+  const res = await fetch(`/api/plans?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (!res.ok) throw new Error("Failed to delete this plan from the cloud.");
+  try {
+    const raw = readLocalPlansRaw();
+    delete raw[id];
+    localStorage.setItem(PLANS_KEY, JSON.stringify(raw));
+  } catch {
+    // Local cache write is best-effort only - the cloud delete above already succeeded.
+  }
+}
+
+export async function mostRecentPlan(beforeDate?: string): Promise<WeeklyPlan | undefined> {
+  const plans = Object.values(await loadPlans()).sort((a, b) => a.date.localeCompare(b.date));
   if (!beforeDate) return plans[plans.length - 1];
   const earlier = plans.filter((p) => p.date < beforeDate);
   return earlier[earlier.length - 1];

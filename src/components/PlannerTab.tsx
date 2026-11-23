@@ -23,12 +23,13 @@ type Props = {
   allDates: string[];
   onLoadDate: (date: string) => void;
   onDuplicateFrom: (sourceDate: string) => void;
-  onSave: () => void;
+  onSave: () => Promise<boolean>;
 };
 
 export default function PlannerTab({ plan, onChange, roster, ccList, onCcListChange, allDates, onLoadDate, onDuplicateFrom, onSave }: Props) {
   const [copyStatus, setCopyStatus] = useState("");
   const [saveStatus, setSaveStatus] = useState("");
+  const [saveFailed, setSaveFailed] = useState(false);
   const [newTeam, setNewTeam] = useState("");
 
   function set<K extends keyof WeeklyPlan>(key: K, value: WeeklyPlan[K]) {
@@ -53,10 +54,17 @@ export default function PlannerTab({ plan, onChange, roster, ccList, onCcListCha
   const recipientsString = useMemo(() => buildRecipientsString(plan, roster), [plan, roster]);
   const pastorSummary = useMemo(() => buildPastorSummary(plan), [plan]);
 
-  function handleSave() {
-    onSave();
-    setSaveStatus(`Saved — "${plan.serviceName}" for ${plan.date}.`);
-    setTimeout(() => setSaveStatus(""), 4000);
+  async function handleSave() {
+    setSaveFailed(false);
+    setSaveStatus("Saving...");
+    const ok = await onSave();
+    if (ok) {
+      setSaveStatus(`Saved — "${plan.serviceName}" for ${plan.date}.`);
+      setTimeout(() => setSaveStatus(""), 4000);
+    } else {
+      setSaveFailed(true);
+      setSaveStatus("Couldn't save — check your connection and try again.");
+    }
   }
 
   function handleLoadDefault() {
@@ -184,7 +192,7 @@ export default function PlannerTab({ plan, onChange, roster, ccList, onCcListCha
             <button type="button" className="primary" onClick={handleSave}>Save this week's plan</button>
           </label>
         </div>
-        {saveStatus && <p className="status">{saveStatus}</p>}
+        {saveStatus && <p className={saveFailed ? "status error" : "status"}>{saveStatus}</p>}
       </div>
 
       <h2 className="h-details">Service details</h2>
