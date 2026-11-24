@@ -1,5 +1,5 @@
-import type { ApiRequest, ApiResponse } from "./_lib/types";
-import { redis, redisConfigError } from "./_lib/kv";
+import type { ApiRequest, ApiResponse } from "./_lib/types.js";
+import { redis, redisConfigError } from "./_lib/kv.js";
 
 const KEY = "hopeec:cclist";
 

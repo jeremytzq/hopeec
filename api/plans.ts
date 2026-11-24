@@ -1,5 +1,5 @@
-import type { ApiRequest, ApiResponse } from "./_lib/types";
-import { redis, redisConfigError } from "./_lib/kv";
+import type { ApiRequest, ApiResponse } from "./_lib/types.js";
+import { redis, redisConfigError } from "./_lib/kv.js";
 
 // A Redis Hash (one field per plan id), not a single JSON-blob key, so that
 // saving two DIFFERENT weeks from two different devices around the same time
