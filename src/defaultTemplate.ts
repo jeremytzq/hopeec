@@ -50,7 +50,7 @@ export function defaultSegments(): Segment[] {
     ]),
     seg("Sermon (Recording)", 40, [
       ["MM Team", "To download the Saturday Recording."],
-      ["Audio Team", "To ensure the sound is coming through"],
+      ["Sound Team", "To ensure the sound is coming through"],
     ]),
     seg("Altar Call Song + Response (Live)", 15, [
       ["Service Leaders", "To be on stage before Sinner's Prayer"],
@@ -89,7 +89,7 @@ export function defaultCallTimes(): CallTimeItem[] {
   ];
 }
 
-export const DEFAULT_TEAMS_FULL = ["Service Leaders", "MM Team", "SM Team", "Audio Team"];
+export const DEFAULT_TEAMS_FULL = ["Service Leaders", "SM Team", "MM Team", "Sound Team"];
 
 /** Applies the recurring skeleton onto a plan, keeping the plan's own date/sermon/speaker/recipients. */
 export function applyDefaultTemplate(plan: WeeklyPlan): WeeklyPlan {

@@ -56,7 +56,7 @@ export type WeeklyPlan = {
   closingNote: string; // rich-text HTML from the closing note editor
 };
 
-export const DEFAULT_TEAMS = ["Service Leaders", "MM Team", "SM Team", "Audio Team"];
+export const DEFAULT_TEAMS = ["Service Leaders", "SM Team", "MM Team", "Sound Team"];
 
 export function uid(): string {
   return Math.random().toString(36).slice(2, 10);
