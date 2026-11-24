@@ -20,11 +20,25 @@ function readLocalArray<T>(key: string): T[] {
 // same data, with localStorage kept only as a write-through cache so the app
 // still works - read-only, from whatever was last fetched - if the network or
 // the cloud store is unavailable.
+//
+// On the FIRST successful cloud fetch after this app started storing data in
+// the cloud, the cloud collection can legitimately be empty while this browser's
+// local cache still holds real, never-yet-migrated data (nothing was ever PUT/
+// POSTed to seed it). Blindly trusting "cloud responded OK" and overwriting the
+// local cache with that emptiness destroys that data. So: an empty cloud result
+// is only treated as authoritative when the local cache is ALSO empty; if local
+// has data the cloud doesn't, that local data is pushed up to seed the cloud
+// store instead of being discarded.
 export async function loadRoster(): Promise<RosterPerson[]> {
   try {
     const res = await fetch("/api/roster");
     if (!res.ok) throw new Error(`GET /api/roster failed (${res.status})`);
     const { roster } = await res.json();
+    const local = readLocalArray<RosterPerson>(ROSTER_KEY);
+    if (roster.length === 0 && local.length > 0) {
+      await saveRoster(local);
+      return local;
+    }
     localStorage.setItem(ROSTER_KEY, JSON.stringify(roster));
     return roster;
   } catch {
@@ -48,6 +62,11 @@ export async function loadCcList(): Promise<CcPerson[]> {
     const res = await fetch("/api/cc-list");
     if (!res.ok) throw new Error(`GET /api/cc-list failed (${res.status})`);
     const { ccList } = await res.json();
+    const local = readLocalArray<CcPerson>(CC_LIST_KEY);
+    if (ccList.length === 0 && local.length > 0) {
+      await saveCcList(local);
+      return local;
+    }
     const list = ccList.length > 0 ? ccList : DEFAULT_CC_PEOPLE;
     localStorage.setItem(CC_LIST_KEY, JSON.stringify(list));
     return list;
@@ -148,6 +167,15 @@ export async function loadPlans(): Promise<Record<string, WeeklyPlan>> {
     const res = await fetch("/api/plans");
     if (!res.ok) throw new Error(`GET /api/plans failed (${res.status})`);
     const { plans } = await res.json();
+    const localRaw = readLocalPlansRaw();
+    if (Object.keys(plans).length === 0 && Object.keys(localRaw).length > 0) {
+      // Cloud is empty but this browser has real, never-yet-migrated plans -
+      // push each one up to seed the cloud store instead of discarding them.
+      for (const plan of Object.values(localRaw)) {
+        await savePlan(plan);
+      }
+      return migratePlansInPlace(localRaw);
+    }
     // Cache the raw (pre-migration) shape, matching what's actually stored.
     localStorage.setItem(PLANS_KEY, JSON.stringify(plans));
     return migratePlansInPlace(plans);
