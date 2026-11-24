@@ -56,7 +56,7 @@ export type WeeklyPlan = {
   closingNote: string; // rich-text HTML from the closing note editor
 };
 
-export const DEFAULT_TEAMS = ["Service Leaders", "SM and MM Teams"];
+export const DEFAULT_TEAMS = ["Service Leaders", "MM Team", "SM Team", "Audio Team"];
 
 export function uid(): string {
   return Math.random().toString(36).slice(2, 10);
@@ -80,13 +80,13 @@ export function blankPlan(date: string): WeeklyPlan {
     id: date,
     date,
     serviceName,
-    teamGreetingName: "East Team",
+    teamGreetingName: "East Co-Labourers",
     emailSubject: `[${deriveShortServiceName(serviceName)}] Service Brief for ${formatLongDate(date)}`,
     sermonTitle: "",
     speaker: "",
     holyCommunion: false,
     introNote:
-      "<b>Everyone, please open the SERVICE BRIEF to read through the Service Program and this email thoroughly. Thank you for your spirit of excellence in thorough preparation.</b>",
+      '<b style="background-color: rgb(255, 255, 0);">[Service Mode]</b><div>Please open the SERVICE BRIEF to read through the Service Program and this email thoroughly.</div><div>Thank you for your spirit of excellence in thorough preparation.</div>',
     serviceClockTime: "09:30",
     startTime: "09:00",
     segments: [],
